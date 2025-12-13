@@ -3,38 +3,383 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Users collection - users can only read/write their own data
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ===== 1. COMPANY INFO =====
+    // Public read, admin write only
+    match /company_info/{companyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 2. USERS =====
+    // Users can only read/write their own data
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+      
+      // Subcollection: Addresses
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Subcollection: Cart
+      match /cart/{cartId} {
+        allow read, write: if isOwner(userId);
+        
+        // Cart Items
+        match /cart_items/{itemId} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+      
+      // Subcollection: Wishlist
+      match /wishlist/{wishlistId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Subcollection: Notifications
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId);
+      }
     }
     
-    // Orders collection - users can only read their own orders
-    match /orders/{orderId} {
-      allow read: if request.auth != null && 
-                     (resource.data.userId == request.auth.uid || 
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if request.auth != null && 
-                               get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    // Products collection - read-only for all, write for admins only
+    // ===== 3. PRODUCTS =====
+    // Public read, admin write
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null && 
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow write: if isAdmin();
+      
+      // Subcollection: Reviews
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() && 
+          (resource.data.userId == request.auth.uid || isAdmin());
+      }
+      
+      // Subcollection: Inventory Movements
+      match /inventory_movements/{movementId} {
+        allow read: if isAdmin();
+        allow write: if isAdmin();
+      }
     }
     
-    // Cart collection - users can only access their own cart
-    match /carts/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Reviews collection - authenticated users can create, users can update/delete their own
-    match /reviews/{reviewId} {
+    // ===== 4. CATEGORIES =====
+    // Public read, admin write
+    match /categories/{categoryId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 5. ORDERS =====
+    // Users can read their own orders, admins can read/write all
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+      
+      // Subcollection: Order Items
+      match /order_items/{itemId} {
+        allow read: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid || isAdmin());
+        allow write: if isAdmin();
+      }
+      
+      // Subcollection: Status History
+      match /status_history/{statusId} {
+        allow read: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid || isAdmin());
+        allow write: if isAdmin();
+      }
+    }
+    
+    // ===== 6. INVOICES =====
+    // Users can read their own invoices, admins can read/write all
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+    
+    // ===== 7. WAREHOUSE =====
+    // Admin only
+    match /warehouse/{warehouseId} {
+      allow read, write: if isAdmin();
+      
+      // Subcollection: Inventory
+      match /inventory/{inventoryId} {
+        allow read, write: if isAdmin();
+      }
+      
+      // Subcollection: Stock Movements
+      match /stock_movements/{movementId} {
+        allow read, write: if isAdmin();
+      }
+    }
+    
+    // ===== 8. COUPONS =====
+    // Public read (to validate), admin write
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 9. PROMOTIONS =====
+    // Public read, admin write
+    match /promotions/{promotionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 10. SERVICES =====
+    // Public read, admin write
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 11. CHATS =====
+    // Users can access their own chats, admins can access all
+    match /chats/{chatId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || 
+                      resource.data.assignedTo == request.auth.uid || 
+                      isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || 
+                        resource.data.assignedTo == request.auth.uid || 
+                        isAdmin());
+      
+      // Subcollection: Messages
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/chats/$(chatId)).data.userId == request.auth.uid || 
+                        get(/databases/$(database)/documents/chats/$(chatId)).data.assignedTo == request.auth.uid || 
+                        isAdmin());
+        allow create: if isAuthenticated();
+        allow update: if request.auth.uid == resource.data.senderId || isAdmin();
+      }
+    }
+    
+    // ===== 12. SUPPORT TICKETS (Registered Users) =====
+    // Users can access their own tickets, admins can access all
+    match /support_tickets/{ticketId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || 
+                      resource.data.assignedTo == request.auth.uid || 
+                      isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || 
+                        resource.data.assignedTo == request.auth.uid || 
+                        isAdmin());
+      
+      // Subcollection: Messages
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.userId == request.auth.uid || 
+                        get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.assignedTo == request.auth.uid || 
+                        isAdmin());
+        allow create: if isAuthenticated();
+        allow update: if request.auth.uid == resource.data.senderId || isAdmin();
+      }
+    }
+    
+    // ===== 13. SUPPORT TICKETS WEB (Guest Users) =====
+    // Anyone can create, only admins can read/update
+    match /support_tickets_web/{ticketId} {
+      allow read: if isAdmin();
+      allow create: if true; // Allow guest users to create tickets
+      allow update: if isAdmin();
+      
+      // Subcollection: Messages
+      match /messages/{messageId} {
+        allow read: if isAdmin();
+        allow create: if true; // Allow guest responses
+        allow update: if isAdmin();
+      }
+    }
+    
+    // ===== 14. ADMIN ALERTS =====
+    // Admin only
+    match /admin_alerts/{alertId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== 15. CITIES =====
+    // Public read, admin write
+    match /cities/{cityId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 16. PAYMENTS =====
+    // Users can read their own payments, admins can read all, system can write
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      
+      // Subcollection: Refunds
+      match /refunds/{refundId} {
+        allow read: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/payments/$(paymentId)).data.userId == request.auth.uid || isAdmin());
+        allow write: if isAdmin();
+      }
+    }
+    
+    // ===== 17. APP SETTINGS =====
+    // Public read, admin write
+    match /app_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ===== 18. USER ACTIVITY LOGS =====
+    // Admin can read all, system can write, users can read their own
+    match /user_activity_logs/{logId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated(); // System/app creates logs
+      allow update, delete: if isAdmin();
+    }
+    
+    // ===== 19. AUDIT LOGS =====
+   // Admin only - critical audit trail
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated(); // System creates logs
+      allow update, delete: if false; // Immutable logs
+    }
+    
+    // ===== 20. STAFF ACTIVITY LOGS =====
+    // Staff can read their own, admin can read all
+    match /staff_activity_logs/{logId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.staffId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+    
+    // ===== 21. STAFF (Employee Records) =====
+    // Staff can read their own data, admin can read/write all
+    match /staff/{staffId} {
+      allow read: if isOwner(staffId) || isAdmin();
+      allow write: if isAdmin();
+      
+      // Subcollection: Attendance
+      match /attendance/{attendanceId} {
+        allow read: if isOwner(staffId) || isAdmin();
+        allow write: if isAdmin();
+      }
+      
+      // Subcollection: Leaves
+      match /leaves/{leaveId} {
+        allow read: if isOwner(staffId) || isAdmin();
+        allow create: if isOwner(staffId);
+        allow update, delete: if isAdmin();
+      }
+      
+      // Subcollection: Salary Slips
+      match /salary_slips/{slipId} {
+        allow read: if isOwner(staffId) || isAdmin();
+        allow write: if isAdmin();
+      }
+      
+      // Subcollection: Performance Reviews
+      match /performance_reviews/{reviewId} {
+        allow read: if isOwner(staffId) || isAdmin();
+        allow write: if isAdmin();
+      }
+    }
+    
+    // ===== 22. SALARY PAYMENTS =====
+    // Staff can read their own, admin can read/write all
+    match /salary_payments/{paymentId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.staffId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+    
+    // ===== 23. RAW MATERIALS =====
+    // Admin only
+    match /raw_materials/{materialId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== 24. SUPPLIERS =====
+    // Admin only
+    match /suppliers/{supplierId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== 25. PURCHASE ORDERS =====
+    // Admin only
+    match /purchase_orders/{orderId} {
+      allow read, write: if isAdmin();
+      
+      // Subcollection: GRN (Goods Receipt Notes)
+      match /grn/{grnId} {
+        allow read, write: if isAdmin();
+      }
+    }
+    
+    // ===== 26. EXPENDITURES =====
+    // Admin only
+    match /expenditures/{expenditureId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== 27. NOTIFICATIONS_GLOBAL (Broadcast) =====
+    // Public read (to show notifications), admin write
+    match /notifications_global/{notificationId} {
+      allow read: if true; // Anyone can read global notifications
+      allow write: if isAdmin();
+    }
+    
+    // ===== 28. SERVICE BOOKINGS (Installation/Assembly) =====
+    // Users can read/create their own bookings, admin can read/write all
+    match /service_bookings/{bookingId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // ===== 29. RETURN REQUESTS (Returns/Refunds) =====
+    // Users can read/create their own returns, admin can read/write all
+    match /return_requests/{returnId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
     }
   }
 }

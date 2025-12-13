@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { use } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Star, Heart, Share2, ShoppingCart, Check, Truck, Shield, RotateCcw } from "lucide-react";
-import { products } from "@/data/products";
-import { mockReviews } from "@/data/reviews";
+import { Star, Heart, Share2, ShoppingCart, Check, Truck, Shield, RotateCcw, Loader2 } from "lucide-react";
+import { useProduct } from "@/hooks/useProduct";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
@@ -23,27 +22,64 @@ import { motion } from "framer-motion";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const product = products.find((p) => p.slug === slug);
+  const { product, loading, error } = useProduct(slug);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
 
-  if (!product) {
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen pb-20 md:pb-8 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading product...</p>
+          </div>
+        </main>
+        <Footer />
+        <MobileBottomNav />
+      </>
+    );
+  }
+
+  if (error || !product) {
     notFound();
   }
 
-  const productReviews = mockReviews.filter((r) => r.productId === product.id);
+  // Map Firebase product to display format
+  const displayProduct = {
+    ...product,
+    images: product.galleryURLs && product.galleryURLs.length > 0
+      ? product.galleryURLs
+      : [product.mainImageURL || '/placeholder-product.jpg'],
+    discount: product.discountedPrice
+      ? Math.round(((product.price - product.discountedPrice) / product.price) * 100)
+      : 0,
+    originalPrice: product.price,
+    price: product.discountedPrice || product.price,
+    rating: product.avgRating || 0,
+    reviewCount: product.totalRatings || 0,
+    inStock: product.isAvailable && (product.inventory?.currentStock || 0) > 0,
+    features: product.specifications?.features || [],
+    material: product.specifications?.material || 'Stainless Steel',
+    dimensions: product.specifications?.dimensions || 'Standard',
+    weight: product.specifications?.weight || 'N/A',
+    warranty: product.specifications?.warranty || '1 Year',
+    brand: 'Hillton Baskets',
+    color: product.specifications?.finish ? [product.specifications.finish] : ['Chrome'],
+  };
 
   const handleAddToCart = () => {
     addToCart({
       productId: product.id,
       name: product.name,
-      price: product.price,
-      originalPrice: product.originalPrice,
-      discount: product.discount,
-      image: product.images[0],
+      price: displayProduct.price,
+      originalPrice: displayProduct.originalPrice,
+      discount: displayProduct.discount,
+      image: displayProduct.images[0],
       quantity,
-      inStock: product.inStock,
+      inStock: displayProduct.inStock,
     });
     toast.success("Added to cart!");
   };
@@ -62,64 +98,68 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 className="relative aspect-square mb-4 rounded-lg overflow-hidden border"
               >
                 <Image
-                  src={product.images[selectedImage]}
+                  src={displayProduct.images[selectedImage]}
                   alt={product.name}
                   fill
                   className="object-cover"
                   priority
                 />
-                {product.discount > 0 && (
+                {displayProduct.discount > 0 && (
                   <Badge className="absolute top-4 left-4 bg-destructive">
-                    {product.discount}% OFF
+                    {displayProduct.discount}% OFF
                   </Badge>
                 )}
               </motion.div>
-              <div className="grid grid-cols-4 gap-2">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImage === index ? "border-primary" : "border-transparent"
-                    }`}
-                  >
-                    <Image src={image} alt={`${product.name} ${index + 1}`} fill className="object-cover" />
-                  </button>
-                ))}
-              </div>
+              {displayProduct.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {displayProduct.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index ? "border-primary" : "border-transparent"
+                        }`}
+                    >
+                      <Image src={image} alt={`${product.name} ${index + 1}`} fill className="object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-
             {/* Product Info */}
             <div>
               <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded">
-                  <span className="font-semibold">{product.rating}</span>
+                  <span className="font-semibold">{displayProduct.rating.toFixed(1)}</span>
                   <Star className="h-4 w-4 fill-current" />
                 </div>
                 <span className="text-muted-foreground">
-                  {product.reviewCount} ratings & {productReviews.length} reviews
+                  {displayProduct.reviewCount} ratings
                 </span>
               </div>
 
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-3xl font-bold">{formatPrice(product.price)}</span>
-                <span className="text-xl text-muted-foreground line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-                <Badge variant="secondary" className="text-green-600">
-                  {product.discount}% OFF
-                </Badge>
+                <span className="text-3xl font-bold">{formatPrice(displayProduct.price)}</span>
+                {displayProduct.discount > 0 && (
+                  <>
+                    <span className="text-xl text-muted-foreground line-through">
+                      {formatPrice(displayProduct.originalPrice)}
+                    </span>
+                    <Badge variant="secondary" className="text-green-600">
+                      {displayProduct.discount}% OFF
+                    </Badge>
+                  </>
+                )}
               </div>
 
               <p className="text-muted-foreground mb-6">{product.description}</p>
 
               {/* Colors */}
-              {product.color.length > 0 && (
+              {displayProduct.color && displayProduct.color.length > 0 && (
                 <div className="mb-6">
-                  <Label className="mb-2 block font-semibold">Available Colors</Label>
+                  <Label className="mb-2 block font-semibold">Available Finishes</Label>
                   <div className="flex gap-2">
-                    {product.color.map((color) => (
+                    {displayProduct.color.map((color: string) => (
                       <Badge key={color} variant="outline">
                         {color}
                       </Badge>
@@ -156,10 +196,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   size="lg"
                   className="flex-1"
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!displayProduct.inStock}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  {product.inStock ? "Add to Cart" : "Out of Stock"}
+                  {displayProduct.inStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
                 <Button size="lg" variant="outline">
                   <Heart className="h-5 w-5" />
@@ -179,7 +219,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                     <div className="flex items-center gap-2">
                       <Shield className="h-5 w-5 text-primary" />
-                      <span className="text-sm">{product.warranty} Warranty</span>
+                      <span className="text-sm">{displayProduct.warranty} Warranty</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <RotateCcw className="h-5 w-5 text-primary" />
@@ -187,7 +227,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="h-5 w-5 text-primary" />
-                      <span className="text-sm">In Stock</span>
+                      <span className="text-sm">{displayProduct.inStock ? 'In Stock' : 'Out of Stock'}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -200,22 +240,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             <TabsList className="w-full justify-start">
               <TabsTrigger value="description">Description</TabsTrigger>
               <TabsTrigger value="specifications">Specifications</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews ({productReviews.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-6">
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-semibold mb-4">Product Description</h3>
                   <p className="text-muted-foreground mb-4">{product.description}</p>
-                  <h4 className="font-semibold mb-2">Key Features:</h4>
-                  <ul className="space-y-2">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {displayProduct.features && displayProduct.features.length > 0 && (
+                    <>
+                      <h4 className="font-semibold mb-2">Key Features:</h4>
+                      <ul className="space-y-2">
+                        {displayProduct.features.map((feature: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                            <span className="text-muted-foreground">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -226,76 +269,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <div className="space-y-3">
                     <div className="flex justify-between py-2 border-b">
                       <span className="font-medium">Material</span>
-                      <span className="text-muted-foreground">{product.material}</span>
+                      <span className="text-muted-foreground">{displayProduct.material}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="font-medium">Dimensions</span>
-                      <span className="text-muted-foreground">{product.dimensions}</span>
+                      <span className="text-muted-foreground">{displayProduct.dimensions}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="font-medium">Weight</span>
-                      <span className="text-muted-foreground">{product.weight}</span>
+                      <span className="text-muted-foreground">{displayProduct.weight}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="font-medium">Warranty</span>
-                      <span className="text-muted-foreground">{product.warranty}</span>
+                      <span className="text-muted-foreground">{displayProduct.warranty}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="font-medium">Brand</span>
-                      <span className="text-muted-foreground">{product.brand}</span>
+                      <span className="text-muted-foreground">{displayProduct.brand}</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-            <TabsContent value="reviews" className="mt-6">
-              <div className="space-y-4">
-                {productReviews.map((review) => (
-                  <Card key={review.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <Avatar>
-                          <AvatarImage src={review.userAvatar} />
-                          <AvatarFallback>{review.userName[0]}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <p className="font-semibold">{review.userName}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <div className="flex gap-0.5">
-                                  {Array.from({ length: review.rating }).map((_, i) => (
-                                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                  ))}
-                                </div>
-                                {review.verified && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Verified Purchase
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(review.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <h4 className="font-medium mb-2">{review.title}</h4>
-                          <p className="text-muted-foreground mb-3">{review.comment}</p>
-                          {review.images && review.images.length > 0 && (
-                            <div className="flex gap-2">
-                              {review.images.map((img, idx) => (
-                                <div key={idx} className="relative w-20 h-20 rounded overflow-hidden">
-                                  <Image src={img} alt={`Review ${idx + 1}`} fill className="object-cover" />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
             </TabsContent>
           </Tabs>
         </div>

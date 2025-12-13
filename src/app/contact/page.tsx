@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { companyInfo } from "@/data/company";
+import { useCompanyInfo } from "@/hooks/useCompanyInfo";
 import { toast } from "sonner";
 
 export default function ContactPage() {
+  const { companyInfo, loading } = useCompanyInfo();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Message sent successfully! We'll get back to you soon.");
@@ -60,43 +62,56 @@ export default function ContactPage() {
 
             <div className="space-y-6">
               <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Address</h3>
-                      <p className="text-muted-foreground">{companyInfo.address}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Phone className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Phone</h3>
-                      <p className="text-muted-foreground">{companyInfo.phone}</p>
-                      <p className="text-muted-foreground">WhatsApp: {companyInfo.whatsapp}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : companyInfo ? (
+                <>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
+                        <div>
+                          <h3 className="font-semibold mb-1">Address</h3>
+                          <p className="text-muted-foreground">{companyInfo.address.line1}</p>
+                          <p className="text-muted-foreground">{companyInfo.address.line2}</p>
+                          <p className="text-muted-foreground">
+                            {companyInfo.address.city}, {companyInfo.address.state} {companyInfo.address.pincode}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Mail className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-muted-foreground">{companyInfo.email}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <Phone className="h-6 w-6 text-primary flex-shrink-0" />
+                        <div>
+                          <h3 className="font-semibold mb-1">Phone</h3>
+                          <p className="text-muted-foreground">{companyInfo.contactInfo.phone}</p>
+                          <p className="text-muted-foreground">WhatsApp: {companyInfo.contactInfo.whatsapp}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <Mail className="h-6 w-6 text-primary flex-shrink-0" />
+                        <div>
+                          <h3 className="font-semibold mb-1">Email</h3>
+                          <p className="text-muted-foreground">{companyInfo.contactInfo.email}</p>
+                          <p className="text-muted-foreground text-sm">Support: {companyInfo.contactInfo.supportEmail}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : null}
 
               <Card>
                 <CardContent className="p-6">

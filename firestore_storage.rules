@@ -1,0 +1,169 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check file size (max 10MB)
+    function isValidSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+    
+    // Helper function to check if file is an image
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Helper function to check if file is a PDF
+    function isPDF() {
+      return request.resource.contentType == 'application/pdf';
+    }
+    
+    // ===== 1. PRODUCT IMAGES =====
+    // Public read, admin write
+    match /products/{productId}/{imageFile} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && isValidSize();
+    }
+    
+    // ===== 2. CATEGORY IMAGES =====
+    // Public read, admin write
+    match /categories/{categoryId}/{imageFile} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && isValidSize();
+    }
+    
+    // ===== 3. USER PROFILE PHOTOS =====
+    // Users can read/write their own photos
+    match /users/{userId}/profile/{imageFile} {
+      allow read: if true;
+      allow write: if isAuthenticated() && 
+                      (request.auth.uid == userId || isAdmin()) &&
+                      isImage() && isValidSize();
+    }
+    
+    // ===== 4. USER DOCUMENTS (KYC, etc.) =====
+    // Users can read/write their own documents, admin can read all
+    match /users/{userId}/documents/{docFile} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      isValidSize();
+    }
+    
+    // ===== 5. ORDER INVOICES (PDF) =====
+    // Users can read their own invoices, admin can write
+    match /invoices/{invoiceId}/{allFiles=**} {
+      allow read: if isAuthenticated(); // User ID checked in Firestore
+      allow write: if isAdmin() && isPDF() && isValidSize();
+    }
+    
+    // ===== 6. PRODUCT REVIEW IMAGES =====
+    // Users can upload review images, anyone can read
+    match /reviews/{productId}/{reviewId}/{imageFile} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+    }
+    
+    // ===== 7. SUPPORT TICKET ATTACHMENTS =====
+    // Users can upload attachments, admin can read
+    match /support_tickets/{ticketId}/{attachmentFile} {
+      allow read: if isAuthenticated() || isAdmin();
+      allow write: if isAuthenticated() && isValidSize();
+    }
+    
+    // ===== 8. SUPPORT TICKETS WEB (Guest) ATTACHMENTS =====
+    // Anyone can upload, admin can read
+    match /support_tickets_web/{ticketId}/{attachmentFile} {
+      allow read: if isAdmin();
+      allow write: if isValidSize(); // Allow guest uploads
+    }
+    
+    // ===== 9. PROMOTION BANNERS =====
+    // Public read, admin write
+    match /promotions/{promotionId}/{bannerFile} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && isValidSize();
+    }
+    
+    // ===== 10. COMPANY ASSETS (Logo, etc.) =====
+    // Public read, admin write
+    match /company/{assetFile} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && isValidSize();
+    }
+    
+    // ===== 11. STAFF DOCUMENTS =====
+    // Staff can read their own, admin can read/write all
+    match /staff/{staffId}/documents/{docFile} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == staffId || isAdmin());
+      allow write: if isAdmin() && isValidSize();
+    }
+    
+    // ===== 12. STAFF PHOTOS =====
+    // Staff can read their own, admin can read/write all
+    match /staff/{staffId}/photo/{imageFile} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == staffId || isAdmin());
+      allow write: if isAdmin() && isImage() && isValidSize();
+    }
+    
+    // ===== 13. SALARY SLIPS (PDF) =====
+    // Staff can read their own, admin can write
+    match /salary_slips/{staffId}/{slipFile} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == staffId || isAdmin());
+      allow write: if isAdmin() && isPDF() && isValidSize();
+    }
+    
+    // ===== 14. PURCHASE ORDER DOCUMENTS =====
+    // Admin only
+    match /purchase_orders/{poId}/{docFile} {
+      allow read, write: if isAdmin() && isValidSize();
+    }
+    
+    // ===== 15. EXPENDITURE BILLS =====
+    // Admin only
+    match /expenditures/{expId}/{billFile} {
+      allow read, write: if isAdmin() && isValidSize();
+    }
+    
+    // ===== 16. RETURN REQUEST IMAGES =====
+    // Users can upload images for returns, admin can read
+    match /return_requests/{returnId}/{imageFile} {
+      allow read: if isAuthenticated() || isAdmin();
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+    }
+    
+    // ===== 17. SERVICE BOOKING PHOTOS (Before/After) =====
+    // Technicians can upload, users and admin can read
+    match /service_bookings/{bookingId}/{photoFile} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+    }
+    
+    // ===== 18. NOTIFICATION IMAGES =====
+    // Public read (for global notifications), admin write
+    match /notifications/{notificationId}/{imageFile} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && isValidSize();
+    }
+    
+    // ===== DEFAULT: DENY ALL OTHER PATHS =====
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
