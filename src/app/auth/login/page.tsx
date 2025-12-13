@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,9 +15,9 @@ import { toast } from "sonner";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
-  const [email, setEmail] = useState("demo@hilltonbaskets.com");
-  const [password, setPassword] = useState("password123");
+  const { login, signInWithGoogle } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,18 +25,32 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const success = login(email, password);
-      if (success) {
-        toast.success("Login successful!");
-        const redirect = searchParams?.get("redirect") || "/";
-        router.push(redirect);
-      } else {
-        toast.error("Invalid email or password");
-      }
+    try {
+      await login(email, password);
+      toast.success("Welcome back!");
+      const redirect = searchParams?.get("redirect") || "/";
+      router.push(redirect);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Invalid email or password");
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+      toast.success("Welcome back!");
+      const redirect = searchParams?.get("redirect") || "/";
+      router.push(redirect);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to sign in with Google");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -107,6 +121,26 @@ export default function LoginPage() {
               {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Sign in with Google
+          </Button>
 
           <div className="mt-6">
             <div className="relative">

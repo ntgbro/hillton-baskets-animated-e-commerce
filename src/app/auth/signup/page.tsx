@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { signup, signInWithGoogle } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,12 +34,28 @@ export default function SignupPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await signup(formData.email, formData.password);
       toast.success("Account created successfully!");
-      router.push("/auth/login");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to create account");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+      toast.success("Signed in with Google!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to sign in with Google");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -130,6 +148,26 @@ export default function SignupPage() {
               {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Sign up with Google
+          </Button>
 
           <div className="mt-6 text-center text-sm">
             Already have an account?{" "}
