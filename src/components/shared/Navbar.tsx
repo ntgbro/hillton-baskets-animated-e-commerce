@@ -21,7 +21,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 export function Navbar() {
   const pathname = usePathname();
   const { cartCount } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -150,7 +150,7 @@ export function Navbar() {
             </Button>
 
             {/* Wishlist */}
-            {isAuthenticated && (
+            {user && (
               <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
                 <Link href="/profile/wishlist">
                   <Heart className="h-5 w-5" />
@@ -174,7 +174,7 @@ export function Navbar() {
             </Button>
 
             {/* User Menu */}
-            {isAuthenticated ? (
+            {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -183,7 +183,7 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5 text-sm font-medium">
-                    {user?.name || "My Account"}
+                    {user?.email || "My Account"}
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -214,9 +214,8 @@ export function Navbar() {
         <nav className="hidden md:flex items-center gap-6 py-3 border-t text-sm">
           <Link
             href="/products"
-            className={`hover:text-primary transition-colors ${
-              pathname?.startsWith("/products") ? "text-primary font-semibold" : ""
-            }`}
+            className={`hover:text-primary transition-colors ${pathname?.startsWith("/products") ? "text-primary font-semibold" : ""
+              }`}
           >
             All Products
           </Link>
