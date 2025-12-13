@@ -1,0 +1,1011 @@
+{
+  "database_name": "hillton_baskets_firestore",
+  "description": "Complete Firestore database structure for Hillton Baskets e-commerce platform",
+  "version": "1.0.0",
+  "last_updated": "2025-12-13",
+  "collections": {
+    "company_info": {
+      "path": "company_info/{companyId}",
+      "description": "Editable company information, policies, and social media links",
+      "document_structure": {
+        "companyId": "hillton_baskets_main",
+        "companyName": "Hillton Baskets",
+        "tagline": "Premium Modular Kitchen Solutions",
+        "logo": {
+          "url": "string (Firebase Storage URL)",
+          "thumbnailURL": "string"
+        },
+        "contactInfo": {
+          "email": "contact@hilltonbaskets.in",
+          "phone": "+91 XXXXXXXXXX",
+          "whatsapp": "+91 XXXXXXXXXX",
+          "supportEmail": "support@hilltonbaskets.in"
+        },
+        "address": {
+          "registeredOffice": "string",
+          "line1": "string",
+          "line2": "string",
+          "city": "string",
+          "state": "string",
+          "pincode": "string",
+          "country": "India",
+          "gstNumber": "string"
+        },
+        "aboutUs": {
+          "title": "About Hillton Baskets",
+          "description": "string (long text)",
+          "missionStatement": "string",
+          "visionStatement": "string"
+        },
+        "ourStory": {
+          "title": "Our Story",
+          "content": "string (long text)",
+          "foundedYear": "number",
+          "founderNames": [
+            "string"
+          ]
+        },
+        "experiences": {
+          "title": "Our Experience",
+          "yearsInBusiness": "number",
+          "projectsCompleted": "number",
+          "happyCustomers": "number",
+          "productsCatalog": "number",
+          "milestones": [
+            {
+              "year": "number",
+              "achievement": "string",
+              "description": "string"
+            }
+          ]
+        },
+        "ourValues": {
+          "title": "Our Values",
+          "values": [
+            {
+              "name": "string",
+              "description": "string",
+              "icon": "string"
+            }
+          ]
+        },
+        "socialMedia": {
+          "facebook": "string (URL)",
+          "instagram": "string (URL)",
+          "twitter": "string (URL)",
+          "linkedin": "string (URL)",
+          "youtube": "string (URL)",
+          "pinterest": "string (URL)"
+        },
+        "policies": {
+          "termsAndConditions": {
+            "title": "Terms & Conditions",
+            "content": "string (HTML/Markdown)",
+            "lastUpdated": "timestamp",
+            "version": "string"
+          },
+          "privacyPolicy": {
+            "title": "Privacy Policy",
+            "content": "string (HTML/Markdown)",
+            "lastUpdated": "timestamp",
+            "version": "string"
+          },
+          "refundAndCancellation": {
+            "title": "Refund and Cancellation Policy",
+            "content": "string (HTML/Markdown)",
+            "cancellationWindowDays": 1,
+            "refundProcessingDays": 7,
+            "lastUpdated": "timestamp"
+          },
+          "returnPolicy": {
+            "title": "Return Policy",
+            "content": "string (HTML/Markdown)",
+            "returnWindowDays": 3,
+            "lastUpdated": "timestamp"
+          },
+          "shippingPolicy": {
+            "title": "Shipping Policy",
+            "content": "string (HTML/Markdown)",
+            "shippingDays": 1,
+            "lastUpdated": "timestamp"
+          }
+        },
+        "operatingHours": {
+          "monday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "tuesday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "wednesday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "thursday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "friday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "saturday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "sunday": {
+            "open": "Closed",
+            "close": "Closed"
+          }
+        },
+        "legalInfo": {
+          "companyRegistrationNumber": "string",
+          "gstNumber": "string",
+          "panNumber": "string"
+        },
+        "isActive": true,
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "users": {
+      "path": "users/{userId}",
+      "description": "Customer accounts with order history, addresses, wishlist",
+      "document_structure": {
+        "userId": "string (Firebase Auth UID)",
+        "name": "string",
+        "email": "string",
+        "phone": "string",
+        "photoURL": "string (Firebase Storage URL)",
+        "role": "enum (customer | admin | support_agent)",
+        "status": "enum (active | suspended | deactivated)",
+        "preferences": {
+          "notifications": {
+            "orderUpdates": "boolean",
+            "promotions": "boolean",
+            "offers": "boolean",
+            "whatsapp": "boolean"
+          }
+        },
+        "walletBalance": "number",
+        "loyaltyPoints": "number",
+        "totalOrders": "number",
+        "lastLogin": "timestamp",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "addresses": {
+          "path": "users/{userId}/addresses/{addressId}",
+          "document_structure": {
+            "addressId": "string (auto-generated)",
+            "label": "enum (home | work | other)",
+            "line1": "string",
+            "line2": "string",
+            "landmark": "string",
+            "city": "string",
+            "state": "string",
+            "pincode": "string",
+            "geoPoint": "GeoPoint",
+            "contactName": "string",
+            "contactPhone": "string",
+            "isDefault": "boolean",
+            "isActive": "boolean",
+            "createdAt": "timestamp"
+          }
+        },
+        "cart": {
+          "path": "users/{userId}/cart/{cartId}",
+          "document_structure": {
+            "cartId": "string (auto-generated)",
+            "status": "enum (active | checked_out | abandoned)",
+            "totalAmount": "number",
+            "itemCount": "number",
+            "addedAt": "timestamp",
+            "updatedAt": "timestamp",
+            "appliedCoupon": {
+              "couponId": "string (ref: coupons/{couponId})",
+              "discountAmount": "number"
+            }
+          },
+          "subcollections": {
+            "cart_items": {
+              "path": "users/{userId}/cart/{cartId}/cart_items/{itemId}",
+              "document_structure": {
+                "itemId": "string (auto-generated)",
+                "productId": "string (ref: products/{productId})",
+                "name": "string",
+                "price": "number",
+                "quantity": "number",
+                "totalPrice": "number",
+                "specifications": {
+                  "size": "string",
+                  "material": "string",
+                  "finish": "string"
+                },
+                "imageURL": "string",
+                "notes": "string",
+                "addedAt": "timestamp"
+              }
+            }
+          }
+        },
+        "wishlist": {
+          "path": "users/{userId}/wishlist/{wishlistId}",
+          "document_structure": {
+            "wishlistId": "string (auto-generated)",
+            "productId": "string (ref: products/{productId})",
+            "addedAt": "timestamp",
+            "price": "number"
+          }
+        },
+        "notifications": {
+          "path": "users/{userId}/notifications/{notificationId}",
+          "document_structure": {
+            "notificationId": "string (auto-generated)",
+            "title": "string",
+            "message": "string",
+            "type": "enum (order | promotion | payment | general)",
+            "relatedOrderId": "string (ref: orders/{orderId})",
+            "imageURL": "string",
+            "isRead": "boolean",
+            "createdAt": "timestamp",
+            "actionURL": "string"
+          }
+        }
+      }
+    },
+    "products": {
+      "path": "products/{productId}",
+      "description": "Product catalog for kitchen baskets and accessories",
+      "document_structure": {
+        "productId": "string (auto-generated)",
+        "sku": "string (unique, e.g., 'HB-8T-001')",
+        "name": "string",
+        "description": "string",
+        "mainImageURL": "string",
+        "galleryURLs": [
+          "string"
+        ],
+        "category": "string (ref: categories/{categoryId})",
+        "subCategory": "string",
+        "specifications": {
+          "size": "string (e.g., '8 Inch')",
+          "material": "string (e.g., 'Stainless Steel')",
+          "finish": "string (e.g., 'Chrome Plated')",
+          "weight": "string (e.g., '2.5 kg')",
+          "dimensions": {
+            "length": "number (mm)",
+            "width": "number (mm)",
+            "height": "number (mm)"
+          },
+          "loadCapacity": "string (e.g., '15 kg')",
+          "installation": "string"
+        },
+        "price": "number",
+        "discountedPrice": "number",
+        "mrp": "number",
+        "tax": {
+          "gstRate": "number",
+          "hsnCode": "string"
+        },
+        "inventory": {
+          "currentStock": "number",
+          "reorderLevel": "number",
+          "maxStockLevel": "number"
+        },
+        "isAvailable": "boolean",
+        "isFeatured": "boolean",
+        "tags": [
+          "string"
+        ],
+        "avgRating": "number",
+        "totalRatings": "number",
+        "orderCount": "number",
+        "status": "enum (active | inactive | out_of_stock | discontinued)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "reviews": {
+          "path": "products/{productId}/reviews/{reviewId}",
+          "document_structure": {
+            "reviewId": "string (auto-generated)",
+            "userId": "string (ref: users/{userId})",
+            "orderId": "string (ref: orders/{orderId})",
+            "rating": "number (1-5)",
+            "comment": "string",
+            "imageURLs": [
+              "string"
+            ],
+            "isVerified": "boolean",
+            "helpfulCount": "number",
+            "createdAt": "timestamp",
+            "adminReply": {
+              "message": "string",
+              "repliedAt": "timestamp",
+              "repliedBy": "string (ref: users/{userId})"
+            }
+          }
+        },
+        "inventory_movements": {
+          "path": "products/{productId}/inventory_movements/{movementId}",
+          "document_structure": {
+            "movementId": "string (auto-generated)",
+            "type": "enum (addition | sale | return | adjustment | damage)",
+            "quantity": "number",
+            "reason": "string",
+            "orderId": "string (ref: orders/{orderId}, optional)",
+            "doneBy": "string (ref: users/{userId})",
+            "previousStock": "number",
+            "newStock": "number",
+            "createdAt": "timestamp"
+          }
+        }
+      }
+    },
+    "categories": {
+      "path": "categories/{categoryId}",
+      "description": "Product categorization (Baskets, Accessories, etc.)",
+      "document_structure": {
+        "categoryId": "string (auto-generated)",
+        "name": "string (e.g., 'Baskets', 'Accessories')",
+        "description": "string",
+        "imageURL": "string",
+        "parentCategoryId": "string (ref: categories/{categoryId}, optional)",
+        "sortOrder": "number",
+        "isActive": "boolean",
+        "productCount": "number",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "orders": {
+      "path": "orders/{orderId}",
+      "description": "Customer orders with shipping details and tracking",
+      "document_structure": {
+        "orderId": "string (auto-generated)",
+        "orderNumber": "string (human-readable, e.g., 'HB2025001234')",
+        "userId": "string (ref: users/{userId})",
+        "status": "enum (pending | confirmed | processing | shipped | out_for_delivery | delivered | cancelled | returned | refunded)",
+        "paymentStatus": "enum (pending | paid | failed | refunded)",
+        "paymentMethod": "enum (UPI | card | cod | wallet | net_banking)",
+        "subtotal": "number",
+        "discount": "number",
+        "shippingCharges": "number",
+        "tax": {
+          "cgst": "number",
+          "sgst": "number",
+          "igst": "number",
+          "totalTax": "number"
+        },
+        "totalAmount": "number",
+        "shippingAddress": {
+          "addressId": "string",
+          "line1": "string",
+          "line2": "string",
+          "landmark": "string",
+          "city": "string",
+          "state": "string",
+          "pincode": "string",
+          "contactName": "string",
+          "contactPhone": "string"
+        },
+        "billingAddress": {
+          "line1": "string",
+          "line2": "string",
+          "city": "string",
+          "state": "string",
+          "pincode": "string",
+          "gstNumber": "string (optional)"
+        },
+        "shipping": {
+          "provider": "string (e.g., 'BlueDart', 'Delhivery', 'DTDC')",
+          "trackingNumber": "string",
+          "trackingURL": "string",
+          "estimatedDelivery": "timestamp",
+          "actualDelivery": "timestamp",
+          "shippedAt": "timestamp"
+        },
+        "deliveryInstructions": "string",
+        "appliedCoupons": [
+          {
+            "couponId": "string",
+            "code": "string",
+            "discountAmount": "number"
+          }
+        ],
+        "invoiceId": "string (ref: invoices/{invoiceId})",
+        "invoiceURL": "string (Firebase Storage URL)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp",
+        "cancelledAt": "timestamp",
+        "cancellationReason": "string",
+        "refundAmount": "number"
+      },
+      "subcollections": {
+        "order_items": {
+          "path": "orders/{orderId}/order_items/{itemId}",
+          "document_structure": {
+            "itemId": "string (auto-generated)",
+            "productId": "string (ref: products/{productId})",
+            "sku": "string",
+            "name": "string",
+            "quantity": "number",
+            "unitPrice": "number",
+            "totalPrice": "number",
+            "specifications": {
+              "size": "string",
+              "material": "string",
+              "finish": "string"
+            },
+            "imageURL": "string",
+            "tax": {
+              "gstRate": "number",
+              "taxAmount": "number"
+            }
+          }
+        },
+        "status_history": {
+          "path": "orders/{orderId}/status_history/{statusId}",
+          "document_structure": {
+            "statusId": "string (auto-generated)",
+            "status": "enum (pending | confirmed | processing | shipped | out_for_delivery | delivered | cancelled | returned)",
+            "updatedBy": "enum (admin | system | logistics_partner | user)",
+            "timestamp": "timestamp",
+            "remarks": "string",
+            "location": "string"
+          }
+        }
+      }
+    },
+    "invoices": {
+      "path": "invoices/{invoiceId}",
+      "description": "Order invoices with detailed billing information",
+      "document_structure": {
+        "invoiceId": "string (auto-generated)",
+        "invoiceNumber": "string (e.g., 'INV-2025-001234')",
+        "orderId": "string (ref: orders/{orderId})",
+        "userId": "string (ref: users/{userId})",
+        "customerDetails": {
+          "name": "string",
+          "email": "string",
+          "phone": "string",
+          "billingAddress": {
+            "line1": "string",
+            "line2": "string",
+            "city": "string",
+            "state": "string",
+            "pincode": "string",
+            "gstNumber": "string (optional)"
+          }
+        },
+        "companyDetails": {
+          "name": "string",
+          "address": "string",
+          "gstNumber": "string",
+          "phone": "string",
+          "email": "string"
+        },
+        "items": [
+          {
+            "productName": "string",
+            "sku": "string",
+            "quantity": "number",
+            "unitPrice": "number",
+            "taxRate": "number",
+            "taxAmount": "number",
+            "totalPrice": "number"
+          }
+        ],
+        "amountBreakdown": {
+          "subtotal": "number",
+          "discount": "number",
+          "shippingCharges": "number",
+          "cgst": "number",
+          "sgst": "number",
+          "igst": "number",
+          "totalTax": "number",
+          "grandTotal": "number"
+        },
+        "paymentDetails": {
+          "method": "string",
+          "transactionId": "string",
+          "paidAt": "timestamp"
+        },
+        "invoiceDate": "timestamp",
+        "dueDate": "timestamp",
+        "pdfURL": "string (Firebase Storage URL)",
+        "status": "enum (draft | issued | paid | cancelled)",
+        "notes": "string",
+        "termsAndConditions": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "warehouse": {
+      "path": "warehouse/{warehouseId}",
+      "description": "Warehouse and inventory management",
+      "document_structure": {
+        "warehouseId": "string (auto-generated)",
+        "name": "string",
+        "code": "string (unique, e.g., 'WH-BLR-01')",
+        "address": {
+          "line1": "string",
+          "line2": "string",
+          "landmark": "string",
+          "city": "string",
+          "state": "string",
+          "pincode": "string",
+          "geoPoint": "GeoPoint"
+        },
+        "contactPerson": {
+          "name": "string",
+          "phone": "string",
+          "email": "string"
+        },
+        "capacity": {
+          "totalSpace": "number (sq ft)",
+          "usedSpace": "number (sq ft)",
+          "availableSpace": "number (sq ft)"
+        },
+        "operatingHours": {
+          "monday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "tuesday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "wednesday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "thursday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "friday": {
+            "open": "09:00",
+            "close": "18:00"
+          },
+          "saturday": {
+            "open": "09:00",
+            "close": "14:00"
+          },
+          "sunday": {
+            "open": "Closed",
+            "close": "Closed"
+          }
+        },
+        "isActive": "boolean",
+        "isPrimary": "boolean",
+        "totalProducts": "number",
+        "totalStockValue": "number",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "inventory": {
+          "path": "warehouse/{warehouseId}/inventory/{inventoryId}",
+          "document_structure": {
+            "inventoryId": "string (auto-generated)",
+            "productId": "string (ref: products/{productId})",
+            "sku": "string",
+            "name": "string",
+            "currentStock": "number",
+            "reorderLevel": "number",
+            "maxStockLevel": "number",
+            "location": {
+              "zone": "string (e.g., 'A')",
+              "rack": "string (e.g., 'R-01')",
+              "shelf": "string (e.g., 'S-03')"
+            },
+            "costPerUnit": "number",
+            "totalValue": "number",
+            "lastRestocked": "timestamp",
+            "status": "enum (in_stock | low_stock | out_of_stock)",
+            "updatedAt": "timestamp"
+          }
+        },
+        "stock_movements": {
+          "path": "warehouse/{warehouseId}/stock_movements/{movementId}",
+          "document_structure": {
+            "movementId": "string (auto-generated)",
+            "productId": "string (ref: products/{productId})",
+            "sku": "string",
+            "type": "enum (inbound | outbound | transfer | adjustment | return)",
+            "quantity": "number",
+            "fromLocation": {
+              "zone": "string",
+              "rack": "string",
+              "shelf": "string"
+            },
+            "toLocation": {
+              "zone": "string",
+              "rack": "string",
+              "shelf": "string"
+            },
+            "orderId": "string (ref: orders/{orderId}, optional)",
+            "reason": "string",
+            "performedBy": "string (ref: users/{userId})",
+            "previousStock": "number",
+            "newStock": "number",
+            "createdAt": "timestamp"
+          }
+        }
+      }
+    },
+    "coupons": {
+      "path": "coupons/{couponId}",
+      "description": "Discount codes for promotions",
+      "document_structure": {
+        "couponId": "string (auto-generated)",
+        "code": "string (unique, e.g., 'HILLTON20')",
+        "title": "string",
+        "description": "string",
+        "type": "enum (percentage | fixed_amount | free_shipping)",
+        "discountValue": "number",
+        "minOrderAmount": "number",
+        "maxDiscountAmount": "number",
+        "usageLimit": {
+          "totalUsage": "number",
+          "usedCount": "number",
+          "perUserLimit": "number"
+        },
+        "applicableFor": {
+          "userType": "enum (new_users | all | premium)",
+          "categories": [
+            "string (ref: categories/{categoryId})"
+          ],
+          "products": [
+            "string (ref: products/{productId})"
+          ]
+        },
+        "validFrom": "timestamp",
+        "validTill": "timestamp",
+        "isActive": "boolean",
+        "isStackable": "boolean",
+        "termsAndConditions": "string",
+        "createdBy": "string (ref: users/{userId})",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "promotions": {
+      "path": "promotions/{promotionId}",
+      "description": "Homepage banners and auto-applied campaigns",
+      "document_structure": {
+        "promotionId": "string (auto-generated)",
+        "title": "string",
+        "description": "string",
+        "bannerImageURL": "string",
+        "mobileImageURL": "string",
+        "type": "enum (percentage | fixed_amount | buy_one_get_one | flash_sale)",
+        "discountValue": "number",
+        "minOrderAmount": "number",
+        "maxDiscountAmount": "number",
+        "targetAudience": {
+          "userType": "enum (all | new_users | returning)",
+          "cities": [
+            "string"
+          ],
+          "categories": [
+            "string"
+          ]
+        },
+        "validFrom": "timestamp",
+        "validTill": "timestamp",
+        "usageLimit": {
+          "totalUsage": "number",
+          "usedCount": "number"
+        },
+        "isActive": "boolean",
+        "priority": "number",
+        "displayLocation": [
+          "string (e.g., 'home_banner', 'product_page', 'checkout')"
+        ],
+        "linkURL": "string (deep link or product page)",
+        "createdBy": "string (ref: users/{userId})",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "services": {
+      "path": "services/{serviceId}",
+      "description": "Service configurations (delivery, installation, etc.)",
+      "document_structure": {
+        "serviceId": "string (auto-generated)",
+        "name": "string (e.g., 'Standard Delivery', 'Express Delivery', 'Installation Service')",
+        "description": "string",
+        "type": "enum (delivery | installation | consultation | maintenance)",
+        "pricing": {
+          "basePrice": "number",
+          "pricePerKm": "number (optional)",
+          "freeAboveOrderValue": "number"
+        },
+        "availability": {
+          "cities": [
+            "string (ref: cities/{cityId})"
+          ],
+          "pincodes": [
+            "string"
+          ]
+        },
+        "estimatedDuration": "string (e.g., '2-3 days')",
+        "features": [
+          "string (e.g., 'Doorstep Delivery', 'Real-time Tracking')"
+        ],
+        "isActive": "boolean",
+        "sortOrder": "number",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "chats": {
+      "path": "chats/{chatId}",
+      "description": "Real-time customer support chats",
+      "document_structure": {
+        "chatId": "string (auto-generated)",
+        "userId": "string (ref: users/{userId})",
+        "assignedTo": "string (ref: users/{userId}, support agent)",
+        "status": "enum (active | resolved | closed)",
+        "subject": "string",
+        "lastMessage": "string",
+        "lastMessageAt": "timestamp",
+        "unreadCount": {
+          "user": "number",
+          "agent": "number"
+        },
+        "priority": "enum (low | medium | high)",
+        "tags": [
+          "string (e.g., 'order_query', 'product_info')"
+        ],
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp",
+        "closedAt": "timestamp"
+      },
+      "subcollections": {
+        "messages": {
+          "path": "chats/{chatId}/messages/{messageId}",
+          "document_structure": {
+            "messageId": "string (auto-generated)",
+            "senderId": "string (ref: users/{userId})",
+            "senderType": "enum (user | support_agent | bot)",
+            "message": "string",
+            "attachmentURLs": [
+              "string"
+            ],
+            "messageType": "enum (text | image | file | system)",
+            "isRead": "boolean",
+            "timestamp": "timestamp"
+          }
+        }
+      }
+    },
+    "support_tickets": {
+      "path": "support_tickets/{ticketId}",
+      "description": "Support tickets raised by registered users",
+      "document_structure": {
+        "ticketId": "string (auto-generated)",
+        "ticketNumber": "string (e.g., 'TKT-2025-001234')",
+        "userId": "string (ref: users/{userId})",
+        "userEmail": "string",
+        "userName": "string",
+        "orderId": "string (ref: orders/{orderId}, optional)",
+        "category": "enum (order_issue | payment_issue | product_defect | shipping_delay | general | account_issue)",
+        "priority": "enum (low | medium | high | urgent)",
+        "status": "enum (open | in_progress | waiting_customer | resolved | closed)",
+        "title": "string",
+        "description": "string",
+        "attachmentURLs": [
+          "string"
+        ],
+        "assignedTo": "string (ref: users/{userId}, support agent)",
+        "resolution": "string",
+        "rating": "number (1-5, optional)",
+        "feedback": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp",
+        "resolvedAt": "timestamp",
+        "closedAt": "timestamp"
+      },
+      "subcollections": {
+        "messages": {
+          "path": "support_tickets/{ticketId}/messages/{messageId}",
+          "document_structure": {
+            "messageId": "string (auto-generated)",
+            "senderId": "string (ref: users/{userId})",
+            "senderType": "enum (user | support_agent | system)",
+            "message": "string",
+            "attachmentURLs": [
+              "string"
+            ],
+            "isRead": "boolean",
+            "timestamp": "timestamp"
+          }
+        }
+      }
+    },
+    "support_tickets_web": {
+      "path": "support_tickets_web/{ticketId}",
+      "description": "Support tickets raised by guest users (not logged in)",
+      "document_structure": {
+        "ticketId": "string (auto-generated)",
+        "ticketNumber": "string (e.g., 'WEB-2025-001234')",
+        "guestEmail": "string",
+        "guestName": "string",
+        "guestPhone": "string",
+        "orderNumber": "string (optional)",
+        "category": "enum (order_inquiry | product_inquiry | payment_issue | general | complaint)",
+        "priority": "enum (low | medium | high | urgent)",
+        "status": "enum (open | in_progress | waiting_response | resolved | closed)",
+        "title": "string",
+        "description": "string",
+        "attachmentURLs": [
+          "string"
+        ],
+        "assignedTo": "string (ref: users/{userId}, support agent)",
+        "resolution": "string",
+        "ipAddress": "string",
+        "userAgent": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp",
+        "resolvedAt": "timestamp",
+        "closedAt": "timestamp"
+      },
+      "subcollections": {
+        "messages": {
+          "path": "support_tickets_web/{ticketId}/messages/{messageId}",
+          "document_structure": {
+            "messageId": "string (auto-generated)",
+            "senderType": "enum (guest | support_agent | system)",
+            "senderName": "string",
+            "senderEmail": "string",
+            "message": "string",
+            "attachmentURLs": [
+              "string"
+            ],
+            "isRead": "boolean",
+            "timestamp": "timestamp"
+          }
+        }
+      }
+    },
+    "admin_alerts": {
+      "path": "admin_alerts/{alertId}",
+      "description": "System alerts for admins",
+      "document_structure": {
+        "alertId": "string (auto-generated)",
+        "title": "string",
+        "message": "string",
+        "type": "enum (low_stock | out_of_stock | payment_failure | order_cancelled | high_value_order | new_ticket | system_error)",
+        "severity": "enum (info | warning | critical)",
+        "isRead": "boolean",
+        "isResolved": "boolean",
+        "relatedEntity": {
+          "type": "string (e.g., 'order', 'product', 'user', 'ticket')",
+          "id": "string",
+          "name": "string"
+        },
+        "actionRequired": "boolean",
+        "actionURL": "string (deep link)",
+        "assignedTo": [
+          "string (ref: users/{userId})"
+        ],
+        "createdAt": "timestamp",
+        "readAt": "timestamp",
+        "resolvedAt": "timestamp"
+      }
+    },
+    "cities": {
+      "path": "cities/{cityId}",
+      "description": "Serviceable delivery regions",
+      "document_structure": {
+        "cityId": "string (auto-generated)",
+        "name": "string",
+        "state": "string",
+        "country": "India",
+        "isServiceable": "boolean",
+        "deliveryZones": [
+          {
+            "name": "string",
+            "pincodes": [
+              "string"
+            ],
+            "deliveryFee": "number",
+            "freeDeliveryAbove": "number",
+            "estimatedDays": "number"
+          }
+        ],
+        "popularAreas": [
+          "string"
+        ],
+        "currency": "INR",
+        "taxRate": {
+          "cgst": "number",
+          "sgst": "number"
+        },
+        "status": "enum (active | inactive | coming_soon)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "payments": {
+      "path": "payments/{paymentId}",
+      "description": "Payment transaction logs",
+      "document_structure": {
+        "paymentId": "string (auto-generated)",
+        "orderId": "string (ref: orders/{orderId})",
+        "userId": "string (ref: users/{userId})",
+        "amount": "number",
+        "method": "enum (UPI | card | cod | wallet | net_banking)",
+        "provider": "string (e.g., 'Razorpay', 'PhonePe', 'PayTM')",
+        "status": "enum (success | pending | failed | refunded)",
+        "gatewayTransactionId": "string",
+        "gatewayResponse": {
+          "code": "string",
+          "message": "string",
+          "rawResponse": "object"
+        },
+        "timestamp": "timestamp",
+        "fees": {
+          "gatewayFee": "number",
+          "platformFee": "number"
+        },
+        "failureReason": "string"
+      },
+      "subcollections": {
+        "refunds": {
+          "path": "payments/{paymentId}/refunds/{refundId}",
+          "document_structure": {
+            "refundId": "string (auto-generated)",
+            "amount": "number",
+            "status": "enum (initiated | processed | failed)",
+            "reason": "string",
+            "initiatedAt": "timestamp",
+            "processedAt": "timestamp",
+            "gatewayReference": "string",
+            "failureReason": "string"
+          }
+        }
+      }
+    },
+    "app_settings": {
+      "path": "app_settings/{settingId}",
+      "description": "Global app configuration",
+      "document_structure": {
+        "settingId": "global_config",
+        "freeShippingThreshold": "number",
+        "codAvailable": "boolean",
+        "codCharges": "number",
+        "maxCodAmount": "number",
+        "defaultShippingCharges": "number",
+        "taxRates": {
+          "defaultGST": "number"
+        },
+        "maintenanceMode": {
+          "enabled": "boolean",
+          "message": "string",
+          "startTime": "timestamp",
+          "endTime": "timestamp"
+        },
+        "minOrderValue": "number",
+        "loyaltyPointsConfig": {
+          "enabled": "boolean",
+          "earnRatio": "number (points per rupee)",
+          "redeemRatio": "number (rupees per point)"
+        },
+        "referralConfig": {
+          "enabled": "boolean",
+          "referrerReward": "number",
+          "refereeReward": "number"
+        },
+        "updatedAt": "timestamp"
+      }
+    }
+  }
+}

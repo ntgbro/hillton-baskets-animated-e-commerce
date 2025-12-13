@@ -1,0 +1,1176 @@
+{
+  "metadata": {
+    "name": "Hillton Baskets Complete Database Schema",
+    "version": "1.0.0",
+    "totalCollections": 33,
+    "created": "2025-12-13",
+    "description": "Complete e-commerce database with delivery, logging, staff, and financial management"
+  },
+  "collections": {
+    "company_info": {
+      "purpose": "Company information and settings",
+      "documentId": "hillton_baskets_main",
+      "schema": {
+        "companyId": "string",
+        "companyName": "string",
+        "tagline": "string",
+        "logo": {
+          "url": "string",
+          "thumbnailURL": "string"
+        },
+        "contactInfo": {
+          "email": "string",
+          "phone": "string",
+          "whatsapp": "string",
+          "supportEmail": "string"
+        },
+        "address": {
+          "registeredOffice": "string",
+          "line1": "string",
+          "line2": "string",
+          "city": "string",
+          "state": "string",
+          "pincode": "string",
+          "country": "string",
+          "gstNumber": "string"
+        },
+        "aboutUs": {
+          "title": "string",
+          "description": "string",
+          "missionStatement": "string",
+          "visionStatement": "string"
+        },
+        "socialMedia": {
+          "facebook": "string",
+          "instagram": "string",
+          "twitter": "string",
+          "linkedin": "string"
+        },
+        "isActive": "boolean",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "users": {
+      "purpose": "Customer and admin user accounts",
+      "schema": {
+        "userId": "string (auto)",
+        "name": "string",
+        "email": "string",
+        "phone": "string",
+        "photoURL": "string",
+        "role": "enum (customer | admin | support_agent | staff)",
+        "status": "enum (active | inactive | suspended)",
+        "walletBalance": "number",
+        "loyaltyPoints": "number",
+        "totalOrders": "number",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "addresses": "User shipping addresses",
+        "cart": "Active shopping cart",
+        "cart_items": "Items in cart (nested under cart)",
+        "wishlist": "Wishlist items",
+        "notifications": "User notifications"
+      }
+    },
+    "products": {
+      "purpose": "Product catalog",
+      "schema": {
+        "productId": "string",
+        "sku": "string",
+        "name": "string",
+        "description": "string",
+        "mainImageURL": "string",
+        "galleryURLs": "array<string>",
+        "category": "string (ref: categories)",
+        "subCategory": "string",
+        "specifications": "object",
+        "price": "number",
+        "discountedPrice": "number",
+        "mrp": "number",
+        "tax": {
+          "gstRate": "number",
+          "hsnCode": "string"
+        },
+        "inventory": {
+          "currentStock": "number",
+          "reorderLevel": "number",
+          "maxStockLevel": "number"
+        },
+        "isAvailable": "boolean",
+        "isFeatured": "boolean",
+        "tags": "array<string>",
+        "avgRating": "number",
+        "totalRatings": "number",
+        "orderCount": "number",
+        "status": "enum (active | inactive | discontinued)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "reviews": "Product reviews (TO ADD)",
+        "inventory_movements": "Stock movement history (TO ADD)"
+      }
+    },
+    "categories": {
+      "purpose": "Product categories hierarchy",
+      "schema": {
+        "categoryId": "string",
+        "name": "string",
+        "description": "string",
+        "imageURL": "string",
+        "parentCategoryId": "string (optional)",
+        "sortOrder": "number",
+        "isActive": "boolean",
+        "productCount": "number",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "orders": {
+      "purpose": "Customer orders",
+      "schema": {
+        "orderId": "string",
+        "orderNumber": "string",
+        "userId": "string (ref: users)",
+        "status": "enum (pending | confirmed | processing | shipped | delivered | cancelled | returned)",
+        "paymentStatus": "enum (pending | paid | failed | refunded)",
+        "paymentMethod": "enum (UPI | card | netbanking | cod | wallet)",
+        "subtotal": "number",
+        "discount": "number",
+        "shippingCharges": "number",
+        "tax": {
+          "cgst": "number",
+          "sgst": "number",
+          "totalTax": "number"
+        },
+        "totalAmount": "number",
+        "shippingAddress": "object",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "order_items": "Items in the order",
+        "status_history": "Order status change history"
+      }
+    },
+    "payments": {
+      "purpose": "Payment transactions",
+      "schema": {
+        "paymentId": "string",
+        "orderId": "string (ref: orders)",
+        "userId": "string (ref: users)",
+        "amount": "number",
+        "method": "enum (UPI | card | netbanking | cod | wallet)",
+        "provider": "enum (Razorpay | Paytm | PhonePe | COD)",
+        "status": "enum (pending | processing | success | failed | refunded)",
+        "gatewayTransactionId": "string",
+        "gatewayResponse": "object",
+        "timestamp": "timestamp",
+        "fees": {
+          "gatewayFee": "number",
+          "platformFee": "number"
+        }
+      },
+      "subcollections": {
+        "refunds": "Refund transactions (TO ADD)"
+      }
+    },
+    "invoices": {
+      "purpose": "Order invoices",
+      "schema": {
+        "invoiceId": "string",
+        "invoiceNumber": "string",
+        "orderId": "string (ref: orders)",
+        "userId": "string (ref: users)",
+        "customerDetails": "object",
+        "items": "array<object>",
+        "amountBreakdown": "object",
+        "paymentDetails": "object",
+        "invoiceDate": "timestamp",
+        "status": "enum (draft | paid | cancelled)",
+        "createdAt": "timestamp"
+      }
+    },
+    "warehouse": {
+      "purpose": "Warehouse locations",
+      "schema": {
+        "warehouseId": "string",
+        "name": "string",
+        "code": "string",
+        "address": "object",
+        "contactPerson": "object",
+        "isActive": "boolean",
+        "isPrimary": "boolean",
+        "totalProducts": "number",
+        "createdAt": "timestamp"
+      },
+      "subcollections": {
+        "inventory": "Product stock levels per warehouse",
+        "stock_movements": "Stock movement tracking (TO ADD)"
+      }
+    },
+    "cities": {
+      "purpose": "Serviceable cities",
+      "schema": {
+        "cityId": "string",
+        "name": "string",
+        "state": "string",
+        "country": "string",
+        "isServiceable": "boolean",
+        "currency": "string",
+        "taxRate": {
+          "cgst": "number",
+          "sgst": "number"
+        },
+        "status": "enum (active | inactive)",
+        "createdAt": "timestamp"
+      },
+      "subcollections": {
+        "zones": "Delivery zones with pincodes"
+      }
+    },
+    "coupons": {
+      "purpose": "Discount coupons",
+      "schema": {
+        "couponId": "string",
+        "code": "string",
+        "title": "string",
+        "description": "string",
+        "type": "enum (percentage | fixed | free_shipping)",
+        "discountValue": "number",
+        "minOrderAmount": "number",
+        "maxDiscountAmount": "number",
+        "usageLimit": "object",
+        "applicableFor": "object",
+        "isActive": "boolean",
+        "createdAt": "timestamp"
+      }
+    },
+    "promotions": {
+      "purpose": "Marketing promotions and banners",
+      "schema": {
+        "promotionId": "string",
+        "title": "string",
+        "description": "string",
+        "bannerURL": "string",
+        "promotionType": "enum (banner | flash_sale | seasonal | combo)",
+        "startDate": "timestamp",
+        "endDate": "timestamp",
+        "isActive": "boolean",
+        "targetAudience": "array<string>",
+        "createdAt": "timestamp"
+      }
+    },
+    "services": {
+      "purpose": "Delivery and installation services",
+      "schema": {
+        "serviceId": "string",
+        "name": "string",
+        "description": "string",
+        "type": "enum (delivery | installation | assembly)",
+        "pricing": "object",
+        "availability": "object",
+        "isActive": "boolean",
+        "createdAt": "timestamp"
+      }
+    },
+    "chats": {
+      "purpose": "Customer support live chats",
+      "schema": {
+        "chatId": "string",
+        "userId": "string (ref: users)",
+        "assignedTo": "string (ref: users - support agent)",
+        "status": "enum (active | resolved | closed)",
+        "subject": "string",
+        "lastMessage": "string",
+        "lastMessageAt": "timestamp",
+        "unreadCount": "object",
+        "priority": "enum (low | medium | high | urgent)",
+        "tags": "array<string>",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "messages": "Chat messages"
+      }
+    },
+    "support_tickets": {
+      "purpose": "Support tickets for registered users",
+      "schema": {
+        "ticketId": "string",
+        "ticketNumber": "string",
+        "userId": "string (ref: users)",
+        "userEmail": "string",
+        "userName": "string",
+        "orderId": "string (optional)",
+        "category": "enum (order_issue | product_inquiry | payment_issue | technical | other)",
+        "priority": "enum (low | medium | high | critical)",
+        "status": "enum (open | in_progress | resolved | closed)",
+        "title": "string",
+        "description": "string",
+        "attachmentURLs": "array<string>",
+        "assignedTo": "string (ref: users - support agent)",
+        "resolution": "string",
+        "rating": "number",
+        "feedback": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp",
+        "resolvedAt": "timestamp"
+      },
+      "subcollections": {
+        "messages": "Ticket conversation"
+      }
+    },
+    "support_tickets_web": {
+      "purpose": "Support tickets from guest users",
+      "schema": {
+        "ticketId": "string",
+        "ticketNumber": "string",
+        "guestEmail": "string",
+        "guestName": "string",
+        "guestPhone": "string",
+        "orderNumber": "string (optional)",
+        "category": "enum (product_inquiry | order_status | general | complaint)",
+        "priority": "enum (low | medium | high)",
+        "status": "enum (open | in_progress | resolved | closed)",
+        "title": "string",
+        "description": "string",
+        "attachmentURLs": "array<string>",
+        "assignedTo": "string",
+        "resolution": "string",
+        "ipAddress": "string",
+        "userAgent": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "messages": "Ticket conversation"
+      }
+    },
+    "admin_alerts": {
+      "purpose": "System alerts for admins",
+      "schema": {
+        "alertId": "string",
+        "title": "string",
+        "message": "string",
+        "type": "enum (low_stock | payment_failed | order_pending | system_error)",
+        "severity": "enum (info | warning | error | critical)",
+        "isRead": "boolean",
+        "isResolved": "boolean",
+        "relatedEntity": "object",
+        "actionRequired": "boolean",
+        "actionURL": "string",
+        "assignedTo": "array<string>",
+        "createdAt": "timestamp"
+      }
+    },
+    "app_settings": {
+      "purpose": "Application configuration",
+      "documentId": "global_config",
+      "schema": {
+        "settingId": "string",
+        "freeShippingThreshold": "number",
+        "codAvailable": "boolean",
+        "codCharges": "number",
+        "maxCodAmount": "number",
+        "defaultShippingCharges": "number",
+        "taxRates": "object",
+        "minOrderValue": "number",
+        "updatedAt": "timestamp"
+      }
+    },
+    "user_activity_logs": {
+      "purpose": "Track user login/logout and session activity",
+      "phase": "Phase 1 - Critical",
+      "schema": {
+        "logId": "string (auto)",
+        "userId": "string (ref: users)",
+        "userName": "string",
+        "userEmail": "string",
+        "userRole": "enum (customer | admin | support_agent | staff)",
+        "activityType": "enum (login | logout | session_expired | password_reset | account_created)",
+        "sessionId": "string",
+        "deviceInfo": {
+          "platform": "enum (web | android | ios)",
+          "browser": "string",
+          "deviceId": "string",
+          "ipAddress": "string",
+          "location": {
+            "city": "string",
+            "state": "string",
+            "country": "string",
+            "coordinates": "GeoPoint"
+          }
+        },
+        "timestamp": "timestamp",
+        "userAgent": "string"
+      },
+      "retention": "90 days"
+    },
+    "audit_logs": {
+      "purpose": "Track all system changes (WHO did WHAT and WHEN)",
+      "phase": "Phase 1 - Critical",
+      "schema": {
+        "logId": "string (auto)",
+        "userId": "string (ref: users)",
+        "userName": "string",
+        "userRole": "enum (customer | admin | staff | support_agent)",
+        "action": "enum (create | update | delete | view | approve | reject)",
+        "entityType": "enum (product | order | user | payment | inventory | staff | salary)",
+        "entityId": "string",
+        "entityName": "string",
+        "changes": {
+          "before": "object",
+          "after": "object"
+        },
+        "description": "string",
+        "ipAddress": "string",
+        "timestamp": "timestamp",
+        "sessionId": "string"
+      },
+      "retention": "Forever (compliance)"
+    },
+    "staff_activity_logs": {
+      "purpose": "Track staff attendance, tasks, and movements",
+      "phase": "Phase 2 - Important",
+      "schema": {
+        "logId": "string (auto)",
+        "staffId": "string (ref: staff)",
+        "staffName": "string",
+        "department": "enum (warehouse | production | sales | admin | support)",
+        "activityType": "enum (check_in | check_out | break_start | break_end | task_assigned | task_completed | leave_applied)",
+        "location": {
+          "type": "enum (warehouse | office | remote)",
+          "warehouseId": "string (optional)",
+          "geoPoint": "GeoPoint"
+        },
+        "taskDetails": {
+          "taskId": "string",
+          "taskType": "string",
+          "completionStatus": "enum (pending | completed | in_progress)"
+        },
+        "duration": "number (minutes)",
+        "notes": "string",
+        "timestamp": "timestamp",
+        "approvedBy": "string (optional)"
+      },
+      "retention": "2 years"
+    },
+    "staff": {
+      "purpose": "Employee master data",
+      "phase": "Phase 1 - Critical",
+      "schema": {
+        "staffId": "string (auto)",
+        "employeeCode": "string (e.g., EMP-2025-001)",
+        "personalInfo": {
+          "firstName": "string",
+          "lastName": "string",
+          "dateOfBirth": "timestamp",
+          "gender": "enum (male | female | other)",
+          "bloodGroup": "string",
+          "photoURL": "string",
+          "email": "string",
+          "phone": "string",
+          "alternatePhone": "string",
+          "emergencyContact": {
+            "name": "string",
+            "relationship": "string",
+            "phone": "string"
+          }
+        },
+        "address": {
+          "current": "object",
+          "permanent": "object"
+        },
+        "employmentDetails": {
+          "department": "enum (warehouse | production | sales | admin | support | accounts | hr)",
+          "designation": "string",
+          "role": "enum (staff | manager | supervisor | executive)",
+          "joiningDate": "timestamp",
+          "employmentType": "enum (full_time | part_time | contract | intern)",
+          "workingHours": "object",
+          "reportingTo": "string (ref: staff)",
+          "assignedWarehouse": "string (optional)"
+        },
+        "salary": {
+          "basic": "number",
+          "hra": "number",
+          "conveyance": "number",
+          "otherAllowances": "number",
+          "grossSalary": "number",
+          "deductions": "object",
+          "netSalary": "number",
+          "paymentMode": "enum (bank_transfer | cash | cheque)",
+          "bankDetails": "object",
+          "lastIncrement": "object"
+        },
+        "documents": {
+          "aadharCard": "string (URL)",
+          "panCard": "string (URL)",
+          "drivingLicense": "string (URL)",
+          "educationCertificates": "array<string>",
+          "experienceCertificates": "array<string>",
+          "offerLetter": "string (URL)",
+          "joiningLetter": "string (URL)"
+        },
+        "attendance": {
+          "totalPresent": "number",
+          "totalAbsent": "number",
+          "totalLeaves": "number",
+          "leavesRemaining": "object"
+        },
+        "performance": {
+          "rating": "number (1-5)",
+          "lastReviewDate": "timestamp",
+          "strengths": "array<string>",
+          "areasOfImprovement": "array<string>"
+        },
+        "status": "enum (active | on_leave | resigned | terminated)",
+        "exitDetails": "object (optional)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "attendance": "Daily attendance records",
+        "leaves": "Leave applications",
+        "salary_slips": "Monthly salary slips",
+        "performance_reviews": "Performance evaluations"
+      }
+    },
+    "salary_payments": {
+      "purpose": "Monthly salary disbursements",
+      "phase": "Phase 2 - Important",
+      "schema": {
+        "paymentId": "string (auto)",
+        "paymentNumber": "string (e.g., SAL-2025-001)",
+        "month": "string (e.g., December 2025)",
+        "monthYear": "string (e.g., 2025-12)",
+        "staffId": "string (ref: staff)",
+        "employeeCode": "string",
+        "employeeName": "string",
+        "department": "string",
+        "designation": "string",
+        "salaryBreakdown": {
+          "basic": "number",
+          "hra": "number",
+          "conveyance": "number",
+          "otherAllowances": "number",
+          "grossSalary": "number",
+          "deductions": {
+            "pf": "number",
+            "esi": "number",
+            "tax": "number",
+            "advanceDeduction": "number",
+            "loanDeduction": "number",
+            "other": "number",
+            "totalDeductions": "number"
+          },
+          "netSalary": "number"
+        },
+        "attendance": {
+          "workingDays": "number",
+          "presentDays": "number",
+          "absentDays": "number",
+          "leaves": "number",
+          "overtimeHours": "number",
+          "overtimeAmount": "number"
+        },
+        "paymentDetails": {
+          "paymentMode": "enum (bank_transfer | cash | cheque)",
+          "paymentDate": "timestamp",
+          "transactionId": "string",
+          "paymentStatus": "enum (pending | processed | failed)"
+        },
+        "salarySlipURL": "string (PDF)",
+        "processedBy": "string (ref: users)",
+        "approvedBy": "string (ref: users)",
+        "notes": "string",
+        "createdAt": "timestamp"
+      },
+      "retention": "Forever (legal requirement)"
+    },
+    "raw_materials": {
+      "purpose": "Manufacturing raw materials inventory",
+      "phase": "Phase 3 - Advanced",
+      "schema": {
+        "materialId": "string (auto)",
+        "materialCode": "string (e.g., SS304-SHEET)",
+        "name": "string",
+        "description": "string",
+        "category": "enum (metal | chemical | packaging | hardware)",
+        "unit": "enum (kg | liter | meter | pieces)",
+        "specifications": {
+          "grade": "string",
+          "thickness": "string",
+          "dimensions": "string"
+        },
+        "inventory": {
+          "currentStock": "number",
+          "reorderLevel": "number",
+          "maxStockLevel": "number"
+        },
+        "pricing": {
+          "costPerUnit": "number",
+          "currency": "string",
+          "lastPurchasePrice": "number",
+          "averagePrice": "number"
+        },
+        "supplier": {
+          "supplierId": "string (ref: suppliers)",
+          "supplierName": "string",
+          "leadTime": "number (days)"
+        },
+        "storageLocation": {
+          "warehouseId": "string (ref: warehouse)",
+          "zone": "string",
+          "rack": "string"
+        },
+        "status": "enum (in_stock | low_stock | out_of_stock)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "suppliers": {
+      "purpose": "Vendor management",
+      "phase": "Phase 3 - Advanced",
+      "schema": {
+        "supplierId": "string (auto)",
+        "supplierCode": "string (e.g., SUP-001)",
+        "companyName": "string",
+        "contactPerson": {
+          "name": "string",
+          "designation": "string",
+          "phone": "string",
+          "email": "string"
+        },
+        "address": "object",
+        "taxDetails": {
+          "gstNumber": "string",
+          "panNumber": "string"
+        },
+        "paymentTerms": {
+          "creditDays": "number",
+          "paymentMode": "enum (bank_transfer | cheque | cash)",
+          "bankDetails": "object"
+        },
+        "suppliedMaterials": "array<string> (ref: raw_materials)",
+        "totalPurchases": "number",
+        "averageLeadTime": "number (days)",
+        "rating": "number (1-5)",
+        "status": "enum (active | inactive | blacklisted)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "purchase_orders": {
+      "purpose": "Raw material purchase orders",
+      "phase": "Phase 3 - Advanced",
+      "schema": {
+        "purchaseOrderId": "string (auto)",
+        "poNumber": "string (e.g., PO-2025-001)",
+        "supplierId": "string (ref: suppliers)",
+        "supplierName": "string",
+        "orderDate": "timestamp",
+        "expectedDeliveryDate": "timestamp",
+        "actualDeliveryDate": "timestamp",
+        "status": "enum (draft | sent | confirmed | partial_received | received | cancelled)",
+        "items": "array<object>",
+        "amountBreakdown": {
+          "subtotal": "number",
+          "cgst": "number",
+          "sgst": "number",
+          "igst": "number",
+          "totalTax": "number",
+          "shippingCharges": "number",
+          "grandTotal": "number"
+        },
+        "paymentDetails": {
+          "paymentStatus": "enum (pending | partial | paid)",
+          "paidAmount": "number",
+          "dueAmount": "number",
+          "paymentDueDate": "timestamp"
+        },
+        "deliveryAddress": {
+          "warehouseId": "string (ref: warehouse)",
+          "addressLine": "string"
+        },
+        "approvedBy": "string (ref: users)",
+        "notes": "string",
+        "attachments": "array<string> (URLs)",
+        "createdBy": "string (ref: users)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "grn": "Goods Receipt Notes"
+      }
+    },
+    "expenditures": {
+      "purpose": "All business expenses tracking",
+      "phase": "Phase 2 - Important",
+      "schema": {
+        "expenditureId": "string (auto)",
+        "expenseNumber": "string (e.g., EXP-2025-001)",
+        "category": "enum (rent | utilities | salaries | raw_materials | marketing | transportation | maintenance | insurance | taxes | office_supplies | miscellaneous)",
+        "subCategory": "string",
+        "description": "string",
+        "amount": "number",
+        "paymentMethod": "enum (bank_transfer | cash | cheque | upi)",
+        "paymentStatus": "enum (pending | paid | overdue)",
+        "paidTo": {
+          "name": "string",
+          "vendorId": "string (optional)",
+          "contactNumber": "string"
+        },
+        "taxDetails": {
+          "isTaxable": "boolean",
+          "gstAmount": "number",
+          "tdsAmount": "number"
+        },
+        "billDetails": {
+          "billNumber": "string",
+          "billDate": "timestamp",
+          "billURL": "string"
+        },
+        "paymentDate": "timestamp",
+        "dueDate": "timestamp",
+        "relatedEntity": {
+          "type": "enum (warehouse | office | general)",
+          "entityId": "string (optional)"
+        },
+        "approvedBy": "string (ref: users)",
+        "recordedBy": "string (ref: users)",
+        "isRecurring": "boolean",
+        "recurringFrequency": "enum (monthly | quarterly | yearly)",
+        "notes": "string",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "retention": "7 years (tax compliance)"
+    },
+    "shipments": {
+      "purpose": "Third-party delivery tracking",
+      "phase": "Phase 1 - Launch NOW",
+      "schema": {
+        "shipmentId": "string (auto)",
+        "shipmentNumber": "string (e.g., SHIP-2025-001)",
+        "orderId": "string (ref: orders)",
+        "orderNumber": "string",
+        "deliveryPartner": {
+          "partnerId": "string (ref: delivery_partners)",
+          "name": "enum (delhivery | shiprocket | dunzo | porter | shadowfax)",
+          "awbNumber": "string (tracking number)",
+          "trackingURL": "string"
+        },
+        "pickupDetails": {
+          "warehouseId": "string (ref: warehouse)",
+          "address": "string",
+          "scheduledDate": "timestamp",
+          "actualPickupDate": "timestamp",
+          "pickedUpBy": "string"
+        },
+        "deliveryDetails": {
+          "customerName": "string",
+          "phone": "string",
+          "address": "object",
+          "scheduledDate": "timestamp",
+          "estimatedDeliveryDate": "timestamp",
+          "actualDeliveryDate": "timestamp",
+          "deliveryWindow": "enum (9am-12pm | 12pm-3pm | 3pm-6pm | 6pm-9pm)",
+          "deliveryAttempts": "number",
+          "deliveredBy": "string"
+        },
+        "packageInfo": {
+          "weight": "number (kg)",
+          "dimensions": "object",
+          "packageType": "enum (box | bubble_wrap | custom)",
+          "itemCount": "number",
+          "declaredValue": "number"
+        },
+        "status": "enum (pending | pickup_scheduled | picked_up | in_transit | out_for_delivery | delivered | failed | returned | cancelled)",
+        "statusHistory": "array<object>",
+        "charges": {
+          "baseCharge": "number",
+          "fuelSurcharge": "number",
+          "codCharges": "number",
+          "packagingCharges": "number",
+          "totalCharges": "number"
+        },
+        "paymentMethod": "enum (prepaid | cod)",
+        "codAmount": "number",
+        "codCollected": "boolean",
+        "deliveryProof": {
+          "signature": "string (image URL)",
+          "photo": "string (image URL)",
+          "otp": "string",
+          "verifiedBy": "string"
+        },
+        "issues": {
+          "hasIssue": "boolean",
+          "issueType": "enum (damaged | wrong_item | address_issue | customer_unavailable | refused)",
+          "description": "string",
+          "reportedBy": "string",
+          "reportedAt": "timestamp",
+          "resolution": "string"
+        },
+        "returnDetails": {
+          "isReturn": "boolean",
+          "returnReason": "string",
+          "returnInitiatedAt": "timestamp",
+          "returnStatus": "enum (pickup_pending | picked_up | in_transit | delivered_to_warehouse)",
+          "returnAwbNumber": "string"
+        },
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "delivery_partners": {
+      "purpose": "Third-party delivery service configurations",
+      "phase": "Phase 1 - Launch NOW",
+      "schema": {
+        "partnerId": "string (auto)",
+        "name": "enum (delhivery | shiprocket | dunzo | porter | shadowfax | bluedart | dtdc)",
+        "displayName": "string",
+        "logoURL": "string",
+        "apiConfig": {
+          "apiKey": "string (encrypted)",
+          "apiSecret": "string (encrypted)",
+          "baseURL": "string",
+          "webhookURL": "string"
+        },
+        "serviceability": {
+          "availableCities": "array<string>",
+          "availablePincodes": "array<string>",
+          "maxWeight": "number (kg)",
+          "maxDimensions": "object"
+        },
+        "pricing": {
+          "basePricePerKg": "number",
+          "fuelSurchargePercent": "number",
+          "codChargePercent": "number",
+          "minimumCharge": "number",
+          "freeDeliveryAbove": "number"
+        },
+        "performance": {
+          "totalShipments": "number",
+          "successfulDeliveries": "number",
+          "failedDeliveries": "number",
+          "averageDeliveryTime": "number (days)",
+          "onTimeDeliveryPercent": "number",
+          "rating": "number (1-5)"
+        },
+        "isActive": "boolean",
+        "isPrimary": "boolean",
+        "priority": "number",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "delivery_agents": {
+      "purpose": "In-house delivery staff management",
+      "phase": "Phase 2 - Growth (6+ months)",
+      "schema": {
+        "agentId": "string (auto)",
+        "agentCode": "string (e.g., DA-BLR-001)",
+        "personalInfo": {
+          "firstName": "string",
+          "lastName": "string",
+          "photoURL": "string",
+          "dateOfBirth": "timestamp",
+          "gender": "enum (male | female | other)",
+          "bloodGroup": "string",
+          "phone": "string",
+          "alternatePhone": "string",
+          "email": "string",
+          "emergencyContact": "object"
+        },
+        "address": "object",
+        "documents": {
+          "aadharCard": "string (URL)",
+          "panCard": "string (URL)",
+          "drivingLicense": {
+            "number": "string",
+            "expiryDate": "timestamp",
+            "imageURL": "string"
+          },
+          "vehicleRC": "string (URL)",
+          "policeVerification": "string (URL)"
+        },
+        "employmentDetails": {
+          "joiningDate": "timestamp",
+          "employmentType": "enum (full_time | part_time | contract)",
+          "workingHours": "object",
+          "assignedCity": "string (ref: cities)",
+          "assignedZones": "array<string>",
+          "warehouseId": "string (ref: warehouse)"
+        },
+        "vehicleInfo": {
+          "type": "enum (bike | scooter | van | truck)",
+          "vehicleNumber": "string",
+          "model": "string",
+          "capacity": {
+            "maxWeight": "number (kg)",
+            "maxOrders": "number"
+          },
+          "fuelType": "enum (petrol | diesel | electric | cng)",
+          "insuranceExpiry": "timestamp"
+        },
+        "compensation": {
+          "basicSalary": "number",
+          "perDeliveryBonus": "number",
+          "fuelAllowance": "number",
+          "incentiveStructure": "object",
+          "bankDetails": "object"
+        },
+        "performance": {
+          "totalDeliveries": "number",
+          "successfulDeliveries": "number",
+          "failedDeliveries": "number",
+          "averageDeliveryTime": "number (minutes)",
+          "customerRating": "number (1-5)",
+          "totalRatings": "number",
+          "onTimeDeliveryPercent": "number"
+        },
+        "currentStatus": {
+          "status": "enum (available | on_delivery | on_break | off_duty)",
+          "lastLocation": "GeoPoint",
+          "lastLocationUpdate": "timestamp",
+          "currentDeliveries": "array<string>"
+        },
+        "attendance": {
+          "totalPresent": "number",
+          "totalAbsent": "number",
+          "totalLeaves": "number"
+        },
+        "status": "enum (active | on_leave | resigned | suspended | terminated)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "attendance": "Daily attendance",
+        "leaves": "Leave applications",
+        "earnings": "Monthly earnings"
+      }
+    },
+    "deliveries": {
+      "purpose": "In-house delivery tracking",
+      "phase": "Phase 2 - Growth (6+ months)",
+      "schema": {
+        "deliveryId": "string (auto)",
+        "deliveryNumber": "string (e.g., DEL-2025-001)",
+        "orderId": "string (ref: orders)",
+        "orderNumber": "string",
+        "assignedAgent": {
+          "agentId": "string (ref: delivery_agents)",
+          "agentName": "string",
+          "agentPhone": "string",
+          "vehicleNumber": "string"
+        },
+        "pickupInfo": {
+          "warehouseId": "string (ref: warehouse)",
+          "pickupAddress": "string",
+          "scheduledTime": "timestamp",
+          "actualPickupTime": "timestamp",
+          "packedBy": "string (ref: staff)"
+        },
+        "deliveryInfo": {
+          "customerName": "string",
+          "customerPhone": "string",
+          "deliveryAddress": {
+            "line1": "string",
+            "line2": "string",
+            "city": "string",
+            "pincode": "string",
+            "landmark": "string",
+            "location": "GeoPoint"
+          },
+          "scheduledTime": "timestamp",
+          "estimatedArrival": "timestamp",
+          "actualDeliveryTime": "timestamp",
+          "deliveryWindow": "string",
+          "deliveryInstructions": "string"
+        },
+        "packageInfo": {
+          "itemCount": "number",
+          "totalWeight": "number (kg)",
+          "packageType": "string",
+          "items": "array<object>"
+        },
+        "status": "enum (assigned | picked_up | in_transit | nearby | delivered | failed | returned | cancelled)",
+        "tracking": {
+          "currentLocation": "GeoPoint",
+          "lastLocationUpdate": "timestamp",
+          "distanceToDestination": "number (km)",
+          "estimatedTimeOfArrival": "timestamp",
+          "routeHistory": "array<object>"
+        },
+        "statusHistory": "array<object>",
+        "deliveryProof": {
+          "deliveredTo": "string",
+          "relationship": "enum (self | family | security)",
+          "signature": "string (image URL)",
+          "photo": "string (image URL)",
+          "otp": "string",
+          "verifiedAt": "timestamp"
+        },
+        "paymentInfo": {
+          "method": "enum (prepaid | cod)",
+          "codAmount": "number",
+          "codCollected": "boolean",
+          "collectionTime": "timestamp"
+        },
+        "deliveryAttempts": "array<object>",
+        "issues": {
+          "hasIssue": "boolean",
+          "issueType": "enum (address_wrong | customer_unavailable | refused | damaged | other)",
+          "description": "string",
+          "reportedAt": "timestamp",
+          "resolutionStatus": "enum (pending | resolved)",
+          "resolution": "string"
+        },
+        "rating": {
+          "agentRating": "number (1-5)",
+          "deliveryRating": "number (1-5)",
+          "feedback": "string",
+          "ratedAt": "timestamp"
+        },
+        "timings": {
+          "assignedAt": "timestamp",
+          "pickedUpAt": "timestamp",
+          "startedDeliveryAt": "timestamp",
+          "deliveredAt": "timestamp",
+          "totalTime": "number (minutes)"
+        },
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
+    },
+    "delivery_routes": {
+      "purpose": "Route optimization for multiple deliveries",
+      "phase": "Phase 3 - Scale (Year 2)",
+      "schema": {
+        "routeId": "string (auto)",
+        "routeNumber": "string (e.g., ROUTE-2025-001)",
+        "date": "timestamp",
+        "assignedAgent": {
+          "agentId": "string (ref: delivery_agents)",
+          "agentName": "string",
+          "vehicleType": "string"
+        },
+        "warehouseId": "string (ref: warehouse)",
+        "deliveries": "array<object>",
+        "routeInfo": {
+          "totalDeliveries": "number",
+          "totalDistance": "number (km)",
+          "estimatedDuration": "number (minutes)",
+          "actualDistance": "number (km)",
+          "actualDuration": "number (minutes)",
+          "fuelCost": "number"
+        },
+        "optimizationAlgorithm": "enum (shortest_distance | time_efficient | zone_based)",
+        "status": "enum (planned | in_progress | completed | cancelled)",
+        "performance": {
+          "onTimeDeliveries": "number",
+          "lateDeliveries": "number",
+          "failedDeliveries": "number",
+          "efficiency": "number (percent)"
+        },
+        "createdAt": "timestamp",
+        "completedAt": "timestamp"
+      }
+    },
+    "delivery_reports": {
+      "purpose": "Delivery performance analytics",
+      "phase": "Phase 3 - Scale (Year 2)",
+      "schema": {
+        "reportId": "string (auto)",
+        "reportType": "enum (daily | weekly | monthly | custom)",
+        "period": {
+          "startDate": "timestamp",
+          "endDate": "timestamp"
+        },
+        "overallMetrics": {
+          "totalDeliveries": "number",
+          "successfulDeliveries": "number",
+          "failedDeliveries": "number",
+          "returnedOrders": "number",
+          "cancelledOrders": "number",
+          "successRate": "number (percent)",
+          "averageDeliveryTime": "number (hours)",
+          "onTimeDeliveryRate": "number (percent)"
+        },
+        "agentPerformance": "array<object>",
+        "cityWiseStats": "array<object>",
+        "timeSlotAnalysis": "array<object>",
+        "issuesBreakdown": "array<object>",
+        "financials": {
+          "totalRevenue": "number",
+          "codCollected": "number",
+          "totalCost": "number",
+          "profitMargin": "number"
+        },
+        "partnerComparison": "array<object>",
+        "generatedBy": "string (ref: users)",
+        "generatedAt": "timestamp"
+      }
+    }
+  },
+  "implementation_phases": {
+    "phase1_launch": {
+      "duration": "Month 1-2",
+      "collections": [
+        "company_info",
+        "users",
+        "products",
+        "categories",
+        "orders",
+        "payments",
+        "warehouse",
+        "cities",
+        "coupons",
+        "promotions",
+        "support_tickets_web",
+        "admin_alerts",
+        "app_settings",
+        "shipments",
+        "delivery_partners",
+        "audit_logs",
+        "user_activity_logs",
+        "staff"
+      ],
+      "total": 19,
+      "focus": "Launch e-commerce with third-party delivery"
+    },
+    "phase2_growth": {
+      "duration": "Month 3-12",
+      "add_collections": [
+        "invoices",
+        "chats",
+        "support_tickets",
+        "services",
+        "staff_activity_logs",
+        "salary_payments",
+        "expenditures",
+        "delivery_agents",
+        "deliveries"
+      ],
+      "total": 28,
+      "focus": "Scale operations with better support and in-house delivery"
+    },
+    "phase3_scale": {
+      "duration": "Year 2+",
+      "add_collections": [
+        "raw_materials",
+        "suppliers",
+        "purchase_orders",
+        "delivery_routes",
+        "delivery_reports"
+      ],
+      "total": 33,
+      "focus": "Advanced ERP features and delivery optimization"
+    }
+  }
+}

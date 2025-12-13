@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
@@ -20,11 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Loader2 } from "lucide-react";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const { products, loading, error } = useProducts();
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState(searchParams?.get("search") || "");
   const [sortBy, setSortBy] = useState("featured");
   const [priceRange, setPriceRange] = useState([0, 20000]);
@@ -33,6 +34,13 @@ export default function ProductsPage() {
 
   const categories = Array.from(new Set(products.map((p) => p.category)));
   const tags = Array.from(new Set(products.flatMap((p) => p.tags)));
+
+  // Initialize filtered products when products load
+  useEffect(() => {
+    if (products.length > 0 && filteredProducts.length === 0) {
+      setFilteredProducts(products);
+    }
+  }, [products]);
 
   useEffect(() => {
     let filtered = [...products];
@@ -82,17 +90,21 @@ export default function ProductsPage() {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "discount":
-        filtered.sort((a, b) => b.discount - a.discount);
+        filtered.sort((a, b) => {
+          const discountA = a.discountedPrice ? ((a.price - a.discountedPrice) / a.price) * 100 : 0;
+          const discountB = b.discountedPrice ? ((b.price - b.discountedPrice) / b.price) * 100 : 0;
+          return discountB - discountA;
+        });
         break;
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
         break;
       default:
         break;
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, sortBy, priceRange, selectedCategories, selectedTags, searchParams]);
+  }, [searchQuery, sortBy, priceRange, selectedCategories, selectedTags, searchParams, products]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -227,7 +239,17 @@ export default function ProductsPage() {
 
             {/* Products Grid */}
             <div className="lg:col-span-3">
-              {filteredProducts.length > 0 ? (
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="ml-2 text-muted-foreground">Loading products...</span>
+                </div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <p className="text-destructive text-lg font-semibold">Error loading products</p>
+                  <p className="text-muted-foreground mt-2">{error}</p>
+                </div>
+              ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />

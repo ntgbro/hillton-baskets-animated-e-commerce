@@ -1,21 +1,49 @@
 "use client";
 
 import Image from "next/image";
-import { Award, Users, Target, Heart } from "lucide-react";
+import { Award, Users, Target, Heart, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
 import { Card, CardContent } from "@/components/ui/card";
-import { companyInfo } from "@/data/company";
+import { useCompanyInfo } from "@/hooks/useCompanyInfo";
 
 export default function AboutPage() {
+  const { companyInfo, loading, error } = useCompanyInfo();
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen pb-20 md:pb-8 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+        <MobileBottomNav />
+      </>
+    );
+  }
+
+  if (error || !companyInfo) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen pb-20 md:pb-8 flex items-center justify-center">
+          <p className="text-destructive">Failed to load company information</p>
+        </main>
+        <Footer />
+        <MobileBottomNav />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
       <main className="min-h-screen pb-20 md:pb-8">
         <div className="bg-gradient-to-br from-primary/10 to-accent/10 py-16">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">About Hillton Baskets</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">About {companyInfo.companyName}</h1>
             <p className="text-lg text-center text-muted-foreground max-w-2xl mx-auto">
               {companyInfo.tagline}
             </p>
@@ -27,30 +55,29 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl font-bold mb-4">Our Story</h2>
               <p className="text-muted-foreground mb-4">
-                {companyInfo.description}
+                {companyInfo.aboutUs.description}
+              </p>
+              <p className="text-muted-foreground mb-4">
+                <strong>Our Mission:</strong> {companyInfo.aboutUs.missionStatement}
               </p>
               <p className="text-muted-foreground">
-                Since {companyInfo.founded}, we've been transforming kitchens across India with our 
-                innovative storage solutions. Our commitment to quality and customer satisfaction has 
-                made us the trusted choice for over {companyInfo.stats.happyCustomers.toLocaleString()} homeowners.
+                <strong>Our Vision:</strong> {companyInfo.aboutUs.visionStatement}
               </p>
             </div>
-            <div className="relative aspect-video rounded-lg overflow-hidden">
-              <Image
-                src="https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800"
-                alt="Hillton Baskets"
-                fill
-                className="object-cover"
-              />
+            <div className="relative aspect-video rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <Award className="h-24 w-24 mx-auto mb-4 opacity-20" />
+                <p>Company Image</p>
+              </div>
             </div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-16">
             {[
-              { icon: Award, label: "Years of Excellence", value: companyInfo.stats.yearsInBusiness + "+" },
-              { icon: Users, label: "Happy Customers", value: (companyInfo.stats.happyCustomers / 1000) + "K+" },
-              { icon: Target, label: "Products Installed", value: (companyInfo.stats.productsInstalled / 1000) + "K+" },
-              { icon: Heart, label: "Cities Covered", value: companyInfo.stats.citiesCovered + "+" },
+              { icon: Award, label: "Years of Excellence", value: "10+" },
+              { icon: Users, label: "Happy Customers", value: "5K+" },
+              { icon: Target, label: "Products Installed", value: "10K+" },
+              { icon: Heart, label: "Cities Covered", value: "50+" },
             ].map((stat, index) => {
               const Icon = stat.icon;
               return (

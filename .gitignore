@@ -28,6 +28,10 @@
 .env*.local
 .env
 
+# Firebase service account credentials
+hillton.json
+*-firebase-adminsdk-*.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -10,14 +10,15 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (email: string, pass: string) => Promise<void>;
+  signup: (email: string, pass: string, name?: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -38,22 +39,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  // Create or update user document in Firestore
+  const createUserDocument = async (user: User, additionalData?: any) => {
+    if (!user) return;
+
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      // Create new user document
+      const { email, displayName, photoURL } = user;
+
+      try {
+        const userName = additionalData?.name || displayName || email?.split('@')[0] || 'User';
+
+        await setDoc(userRef, {
+          userId: user.uid,
+          email: email || '',
+          name: userName,
+          phone: additionalData?.phone || '',
+          photoURL: photoURL || '',
+          role: 'customer',
+          status: 'active',
+          walletBalance: 0,
+          loyaltyPoints: 0,
+          totalOrders: 0,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        console.log('✅ User document created in Firestore');
+      } catch (error) {
+        console.error('Error creating user document:', error);
+      }
+    } else {
+      // User exists, optionally update lastLogin
+      try {
+        await setDoc(userRef, {
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error updating user document:', error);
+      }
+    }
+  };
+
   // Login Function
   const login = async (email: string, pass: string) => {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const result = await signInWithEmailAndPassword(auth, email, pass);
+    await createUserDocument(result.user);
     router.push("/"); // Redirect to Home
   };
 
   // Signup Function
-  const signup = async (email: string, pass: string) => {
-    await createUserWithEmailAndPassword(auth, email, pass);
+  const signup = async (email: string, pass: string, name?: string) => {
+    const result = await createUserWithEmailAndPassword(auth, email, pass);
+    // Create Firestore user document
+    await createUserDocument(result.user, name ? { name } : undefined);
     router.push("/"); // Redirect to Home
   };
 
   // Google Sign-In Function
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    // Create or update Firestore user document
+    await createUserDocument(result.user);
     router.push("/"); // Redirect to Home
   };
 
