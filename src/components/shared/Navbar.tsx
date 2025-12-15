@@ -3,27 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ShoppingCart, User, Menu, X, Heart, MapPin } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { cartCount } = useCart();
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,220 +21,98 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {/* Top Bar */}
-      <div className="hidden md:block bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-1.5 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              Delivering to Bangalore 560001
-            </span>
+    // Removed border radius from navbar
+    <header className="sticky top-0 z-50 w-full bg-[oklch(0.55_0.19_264)]">
+      {/* Redesigned Navbar with Two Equal Parts */}
+      <div className="container mx-auto px-4 h-28 flex flex-col justify-center">
+        {/* Upper Part */}
+        <div className="flex items-center justify-between h-1/2">
+          {/* Changed delivery display font to white */}
+          <div className="flex items-center gap-2">
+            <span className="text-base text-white">Delivering to Bangalore 560001</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/about" className="hover:underline">
-              About Us
+          {/* Changed location pin symbol to white */}
+          <Button variant="ghost" size="icon" asChild className="h-12 w-12">
+            <Link href="/location">
+              <MapPin className="h-12 w-12 text-white scale-150" />
             </Link>
-            <Link href="/contact" className="hover:underline">
-              Contact
-            </Link>
-            <Link href="/services" className="hover:underline">
-              Services
-            </Link>
-          </div>
+          </Button>
         </div>
-      </div>
-
-      {/* Main Navbar */}
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center gap-4">
-          {/* Mobile Menu */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-80">
-              <div className="flex flex-col gap-4 mt-8">
-                <Link
-                  href="/"
-                  className="text-lg font-semibold hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/products"
-                  className="text-lg font-semibold hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-lg font-semibold hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About Us
-                </Link>
-                <Link
-                  href="/services"
-                  className="text-lg font-semibold hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Services
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-lg font-semibold hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Contact
-                </Link>
-                <Link
-                  href="/faq"
-                  className="text-lg font-semibold hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  FAQ
-                </Link>
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          {/* Logo */}
+        
+        {/* Lower Part */}
+        <div className="flex items-center h-1/2">
+          
+          {/* Brand Name - Changed to white */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="text-2xl font-bold text-primary">Hillton</div>
-            <div className="text-sm text-muted-foreground hidden sm:block">Baskets</div>
+            <div className="text-3xl font-bold text-white">Hillton</div>
+            <div className="text-base text-white/80 hidden sm:block">Baskets</div>
           </Link>
-
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl mx-4">
+          
+          {/* Search Input Field */}
+          <form onSubmit={handleSearch} className="flex flex-1 max-w-2xl mx-2">
             <div className="relative w-full">
               <Input
                 type="text"
                 placeholder="Search for kitchen baskets, organizers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-10"
+                className="w-full pl-3 pr-4 border-white/30 bg-white/10 text-white placeholder:text-white/70"
               />
-              <Button
-                type="submit"
-                size="icon"
-                variant="ghost"
-                className="absolute right-0 top-0 h-full"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
             </div>
           </form>
-
-          {/* Right Section */}
-          <div className="flex items-center gap-2">
-            {/* Mobile Search */}
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Search className="h-5 w-5" />
+          
+          {/* Search Icon - Changed to white */}
+          <Button variant="ghost" size="icon" type="submit" onClick={handleSearch} className="h-12 w-12">
+            <Search className="h-12 w-12 text-white scale-150" />
+          </Button>
+          
+          {/* Login Button - Visible when user is not logged in */}
+          {!user && (
+            <Button asChild size="sm" className="hidden md:inline-flex ml-2 bg-white text-[oklch(0.55_0.19_264)] hover:bg-white/90">
+              <Link href="/auth/login">Login</Link>
             </Button>
-
-            {/* Wishlist */}
-            {user && (
-              <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
-                <Link href="/profile/wishlist">
-                  <Heart className="h-5 w-5" />
-                </Link>
-              </Button>
-            )}
-
-            {/* Cart */}
-            <Button variant="ghost" size="icon" asChild className="relative">
-              <Link href="/cart">
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                  >
-                    {cartCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
-
-            {/* User Menu */}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5 text-sm font-medium">
-                    {user?.email || "My Account"}
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile/orders">My Orders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile/addresses">Addresses</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile/wishlist">Wishlist</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button asChild size="sm" className="hidden md:inline-flex">
-                <Link href="/auth/login">Login</Link>
-              </Button>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 py-3 border-t text-sm">
+      {/* Desktop Navigation */}
+      <div className="container mx-auto px-4">
+        <nav className="hidden md:flex items-center gap-6 py-3 text-sm">
           <Link
             href="/products"
-            className={`hover:text-primary transition-colors ${pathname?.startsWith("/products") ? "text-primary font-semibold" : ""
+            className={`hover:text-white transition-colors ${pathname?.startsWith("/products") ? "text-white font-semibold" : "text-white/80"
               }`}
           >
             All Products
           </Link>
           <Link
             href="/products?category=kitchen-baskets"
-            className="hover:text-primary transition-colors"
+            className="hover:text-white transition-colors text-white/80"
           >
             Kitchen Baskets
           </Link>
           <Link
             href="/products?category=kitchen-organizers"
-            className="hover:text-primary transition-colors"
+            className="hover:text-white transition-colors text-white/80"
           >
             Organizers
           </Link>
           <Link
             href="/products?tag=bestseller"
-            className="hover:text-primary transition-colors"
+            className="hover:text-white transition-colors text-white/80"
           >
             Bestsellers
           </Link>
           <Link
             href="/products?tag=premium"
-            className="hover:text-primary transition-colors"
+            className="hover:text-white transition-colors text-white/80"
           >
             Premium
           </Link>
-          <Link href="/about" className="hover:text-primary transition-colors">
+          <Link href="/about" className="hover:text-white transition-colors text-white/80">
             About
           </Link>
-          <Link href="/contact" className="hover:text-primary transition-colors">
+          <Link href="/contact" className="hover:text-white transition-colors text-white/80">
             Contact
           </Link>
         </nav>

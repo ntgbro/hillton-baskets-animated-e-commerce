@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Award, Users, Target, Heart, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";

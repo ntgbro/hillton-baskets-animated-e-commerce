@@ -68,7 +68,7 @@ export function ProductCard({ product }: ProductCardProps) {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="relative aspect-square overflow-hidden bg-muted">
+          <div className="relative aspect-[4/3] overflow-hidden bg-muted">
             {displayProduct.images[0] && displayProduct.images[0] !== '' ? (
               <Image
                 src={displayProduct.images[0]}
@@ -104,7 +104,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <Heart className="h-4 w-4" />
             </Button>
           </div>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <h3 className="font-semibold text-sm mb-1 line-clamp-2 min-h-[40px]">
               {displayProduct.name}
             </h3>

@@ -16,17 +16,19 @@ import { mockOrders } from "@/data/orders";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Check if user is authenticated by checking if user object exists
+    if (!user) {
       router.push("/auth/login");
     }
-  }, [isAuthenticated, router]);
+  }, [user, router]);
 
   if (!user) return null;
 
-  const userOrders = mockOrders.filter((o) => o.userId === user.id);
+  // Since we don't have the full user data structure, let's create safe defaults
+  const userOrders = mockOrders.filter((o) => o.userId === user.uid);
   const recentOrders = userOrders.slice(0, 3);
 
   const handleLogout = () => {
@@ -46,14 +48,14 @@ export default function ProfilePage() {
                 <CardContent className="p-6">
                   <div className="flex flex-col items-center text-center mb-6">
                     <Avatar className="h-24 w-24 mb-4">
-                      <AvatarImage src={user.avatar} />
+                      <AvatarImage src={user.photoURL || ''} />
                       <AvatarFallback className="text-2xl">
-                        {user.name[0]}
+                        {user.displayName ? user.displayName.charAt(0) : user.email?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <h2 className="text-xl font-bold">{user.name}</h2>
+                    <h2 className="text-xl font-bold">{user.displayName || user.email || 'User'}</h2>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
-                    <p className="text-sm text-muted-foreground">{user.phone}</p>
+                    {/* Removed phone number as it's not in the Firebase user object */}
                   </div>
 
                   <Separator className="my-4" />
@@ -123,11 +125,11 @@ export default function ProfilePage() {
                       <div className="text-sm text-muted-foreground">Total Orders</div>
                     </div>
                     <div className="text-center p-4 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold text-primary">{user.addresses.length}</div>
+                      <div className="text-2xl font-bold text-primary">0</div>
                       <div className="text-sm text-muted-foreground">Addresses</div>
                     </div>
                     <div className="text-center p-4 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold text-primary">{user.wishlist.length}</div>
+                      <div className="text-2xl font-bold text-primary">0</div>
                       <div className="text-sm text-muted-foreground">Wishlist</div>
                     </div>
                     <div className="text-center p-4 bg-muted rounded-lg">
@@ -192,29 +194,9 @@ export default function ProfilePage() {
                   <CardTitle>Saved Addresses</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {user.addresses.slice(0, 2).map((address) => (
-                      <div key={address.id} className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold">{address.name}</span>
-                          <span className="text-xs px-2 py-0.5 bg-muted rounded">
-                            {address.type}
-                          </span>
-                          {address.isDefault && (
-                            <span className="text-xs px-2 py-0.5 bg-primary text-primary-foreground rounded">
-                              Default
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {address.addressLine1}, {address.city} - {address.pincode}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <Button asChild variant="outline" className="w-full mt-4">
-                    <Link href="/profile/addresses">Manage Addresses</Link>
-                  </Button>
+                  <p className="text-center py-8 text-muted-foreground">
+                    No addresses saved yet
+                  </p>
                 </CardContent>
               </Card>
             </div>

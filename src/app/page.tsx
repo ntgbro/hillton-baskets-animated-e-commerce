@@ -13,10 +13,10 @@ import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
 export default function Home() {
   return (
     <>
-      <PromotionsScroll />
       <Navbar />
       <main className="min-h-screen">
         <HeroSection />
+        <PromotionsScroll />
         <FeaturedProducts />
         <ServicesShowcase />
         <AchievementsCounter />

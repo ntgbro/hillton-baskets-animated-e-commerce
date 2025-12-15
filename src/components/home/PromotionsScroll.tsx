@@ -55,8 +55,7 @@ export function PromotionsScroll() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ duration: 0.5 }}
-          className={`${promotions[currentIndex].bg} text-white py-3`}
-        >
+          className={`${promotions[currentIndex].bg} text-white py-6`}>
           <div className="container mx-auto px-4 flex items-center justify-between">
             <Button
               variant="ghost"

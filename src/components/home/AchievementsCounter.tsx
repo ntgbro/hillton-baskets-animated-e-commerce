@@ -64,7 +64,7 @@ function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
   }, [end, duration, hasAnimated]);
 
   return (
-    <div ref={ref} className="text-4xl md:text-5xl font-bold text-primary">
+    <div ref={ref} className="text-2xl md:text-3xl font-bold text-primary">
       {count.toLocaleString()}
     </div>
   );
@@ -72,17 +72,17 @@ function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
 
 export function AchievementsCounter() {
   return (
-    <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/5">
+    <section className="py-12 bg-gradient-to-br from-primary/5 to-accent/5">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">
             Our Achievements
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Building trust and excellence, one kitchen at a time
           </p>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {achievements.map((achievement, index) => {
             const Icon = achievement.icon;
             return (
@@ -97,13 +97,13 @@ export function AchievementsCounter() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
                   <Icon className="h-8 w-8 text-primary" />
                 </div>
-                <div className="mb-2">
+                <div className="mb-2 flex items-center justify-center">
                   <CountUp end={achievement.value} />
-                  <span className="text-4xl md:text-5xl font-bold text-primary">
+                  <span className="text-2xl md:text-3xl font-bold text-primary">
                     {achievement.suffix}
                   </span>
                 </div>
-                <p className="text-muted-foreground font-medium">
+                <p className="text-muted-foreground text-sm">
                   {achievement.label}
                 </p>
               </motion.div>
