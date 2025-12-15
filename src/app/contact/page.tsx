@@ -13,18 +13,23 @@ import { useCompanyInfo } from "@/hooks/useCompanyInfo";
 import { toast } from "sonner";
 
 export default function ContactPage() {
-  const { companyInfo, loading } = useCompanyInfo();
+  const { companyInfo, loading, error } = useCompanyInfo();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Message sent successfully! We'll get back to you soon.");
   };
 
+  // Handle error state
+  if (error) {
+    console.error("Error loading company info:", error);
+  }
+
   return (
     <>
       <Navbar />
       <main className="min-h-screen pb-20 md:pb-8">
-        <div className="bg-gradient-to-br from-primary/10 to-accent/10 py-16">
+        <div className="bg-linear-to-br from-primary/10 to-accent/10 py-16">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">Contact Us</h1>
             <p className="text-lg text-center text-muted-foreground">
@@ -67,12 +72,12 @@ export default function ContactPage() {
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
-              ) : companyInfo ? (
+              ) : companyInfo && !error ? (
                 <>
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
+                        <MapPin className="h-6 w-6 text-primary shrink-0" />
                         <div>
                           <h3 className="font-semibold mb-1">Address</h3>
                           <p className="text-muted-foreground">{companyInfo.address.line1}</p>
@@ -88,7 +93,7 @@ export default function ContactPage() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <Phone className="h-6 w-6 text-primary flex-shrink-0" />
+                        <Phone className="h-6 w-6 text-primary shrink-0" />
                         <div>
                           <h3 className="font-semibold mb-1">Phone</h3>
                           <p className="text-muted-foreground">{companyInfo.contactInfo.phone}</p>
@@ -101,7 +106,7 @@ export default function ContactPage() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <Mail className="h-6 w-6 text-primary flex-shrink-0" />
+                        <Mail className="h-6 w-6 text-primary shrink-0" />
                         <div>
                           <h3 className="font-semibold mb-1">Email</h3>
                           <p className="text-muted-foreground">{companyInfo.contactInfo.email}</p>
@@ -111,12 +116,17 @@ export default function ContactPage() {
                     </CardContent>
                   </Card>
                 </>
-              ) : null}
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Contact information temporarily unavailable.</p>
+                  <p className="text-sm mt-2">Please try again later or use the contact form.</p>
+                </div>
+              )}
 
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <Clock className="h-6 w-6 text-primary flex-shrink-0" />
+                    <Clock className="h-6 w-6 text-primary shrink-0" />
                     <div>
                       <h3 className="font-semibold mb-1">Business Hours</h3>
                       <p className="text-muted-foreground">Monday - Saturday: 9:00 AM - 6:00 PM</p>

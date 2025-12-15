@@ -25,19 +25,19 @@ export function Testimonials() {
   };
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">
             What Our Customers Say
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Real experiences from real customers
           </p>
         </div>
 
         {/* Desktop View */}
-        <div className="hidden md:grid md:grid-cols-2 gap-6 mb-8">
+        <div className="hidden md:grid md:grid-cols-2 gap-4 mb-6">
           {companyInfo.testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
@@ -47,10 +47,10 @@ export function Testimonials() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Card className="h-full hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   <div className="flex items-start gap-4 mb-4">
                     {testimonial.avatar && (
-                      <div className="relative w-12 h-12 flex-shrink-0">
+                      <div className="relative w-12 h-12 shrink-0">
                         <Image
                           src={testimonial.avatar}
                           alt={testimonial.name}
@@ -95,10 +95,10 @@ export function Testimonials() {
               transition={{ duration: 0.3 }}
             >
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   <div className="flex items-start gap-4 mb-4">
                     {companyInfo.testimonials[currentIndex].avatar && (
-                      <div className="relative w-12 h-12 flex-shrink-0">
+                      <div className="relative w-12 h-12 shrink-0">
                         <Image
                           src={companyInfo.testimonials[currentIndex].avatar}
                           alt={companyInfo.testimonials[currentIndex].name}

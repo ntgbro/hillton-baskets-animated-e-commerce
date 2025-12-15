@@ -33,7 +33,7 @@ export function FeaturedProducts() {
   };
 
   return (
-    <section className="py-12 bg-muted/30">
+    <section className="py-6 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -72,9 +72,9 @@ export function FeaturedProducts() {
           {featuredProducts.map((product) => (
             <div
               key={product.id}
-              className="flex-none w-[280px] snap-start"
+              className="flex-none w-[200px] snap-start"
             >
-              <ProductCard product={product} />
+              <ProductCard product={{...product, productId: product.id, sku: '', mainImageURL: product.images[0], galleryURLs: product.images, subCategory: '', specifications: {}, mrp: product.originalPrice, tax: {gstRate: 0, hsnCode: ''}, inventory: {currentStock: product.stockCount, reorderLevel: 0, maxStockLevel: 0}, isAvailable: product.inStock, isFeatured: product.tags.includes('featured'), avgRating: product.rating, totalRatings: product.reviewCount, orderCount: 0, status: 'active', createdAt: new Date(), updatedAt: new Date()}} />
             </div>
           ))}
         </div>

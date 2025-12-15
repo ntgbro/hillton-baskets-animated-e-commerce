@@ -11,21 +11,22 @@ import { cn } from "@/lib/utils";
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { cartCount } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
     { href: "/products", icon: Search, label: "Products" },
-    { href: "/cart", icon: ShoppingCart, label: "Cart", badge: cartCount },
+    { href: "/cart", icon: ShoppingCart, label: "Cart", badge: cartCount > 0 ? cartCount : undefined },
     {
-      href: isAuthenticated ? "/profile" : "/auth/login",
+      href: user ? "/profile" : "/auth/login",
       icon: User,
-      label: isAuthenticated ? "Profile" : "Login",
+      label: user ? "Profile" : "Login",
     },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t">
+    // Changed background color to match navbar color
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[oklch(0.55_0.19_264)] border-t border-white/10">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -38,8 +39,10 @@ export function MobileBottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full gap-1 relative transition-colors",
                 isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  // Changed active color to white
+                  ? "text-white"
+                  // Changed inactive color to white with opacity
+                  : "text-white/70 hover:text-white"
               )}
             >
               <div className="relative">
